@@ -1,0 +1,60 @@
+/* --- Estilo general del select --- */
+.rs__control {
+  border: 1px solid #000000;
+  border-radius: 8px;
+  min-height: 40px;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.rs__control:hover {
+  border-color: #eb9121;
+}
+
+.rs__control--is-focused {
+  border-color: #eb9121;
+  box-shadow: 0 0 0 1px #eb9121;
+}
+
+/* --- Texto y placeholder --- */
+.rs__single-value {
+  color: #151414;
+}
+
+.rs__placeholder {
+  color: #888;
+}
+
+/* --- Flechita del select --- */
+.rs__dropdown-indicator {
+  color: #272727;
+}
+
+.rs__dropdown-indicator:hover {
+  color: #eb9121;
+}
+
+/* --- Menú desplegable --- */
+.rs__menu {
+  border-radius: 8px;
+  margin-top: 4px;
+  z-index: 20;
+}
+
+.rs__option {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.rs__option--is-focused {
+  background-color: #eb9021ac;
+  color: rgb(28, 27, 27);
+}
+
+.rs__option--is-selected {
+  background-color: #eb9121;
+  color: white;
+}
+
