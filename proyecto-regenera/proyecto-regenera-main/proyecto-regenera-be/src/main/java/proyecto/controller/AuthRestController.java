@@ -20,11 +20,10 @@ public class AuthRestController {
 
     private final PersonaRepository personaRepo;
 
-
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegistroRequest req){
+    public ResponseEntity<?> register(@Valid @RequestBody RegistroRequest req) {
         authService.register(req);
-        return ResponseEntity.ok(Map.of("message","Te enviamos un mail para verificar la cuenta"));
+        return ResponseEntity.ok(Map.of("message", "Te enviamos un mail para verificar la cuenta"));
     }
 
     @PostMapping("/login")
@@ -36,19 +35,19 @@ public class AuthRestController {
     @GetMapping("/verify")
     public ResponseEntity<?> verify(@RequestParam("token") String token) {
         authService.verify(token);
-        return ResponseEntity.ok(Map.of("message","Cuenta verificada, ya podés iniciar sesión"));
+        return ResponseEntity.ok(Map.of("message", "Cuenta verificada, ya podés iniciar sesión"));
     }
 
     @PostMapping("/forgot")
-    public ResponseEntity<?> forgot(@Valid @RequestBody ForgotRequest req){
+    public ResponseEntity<?> forgot(@Valid @RequestBody ForgotRequest req) {
         authService.forgot(req);
-        return ResponseEntity.ok(Map.of("message","Si el email existe, enviamos un link de recuperación"));
+        return ResponseEntity.ok(Map.of("message", "Si el email existe, enviamos un link de recuperación"));
     }
 
     @PostMapping("/reset")
-    public ResponseEntity<?> reset(@Valid @RequestBody ResetRequest req){
+    public ResponseEntity<?> reset(@Valid @RequestBody ResetRequest req) {
         authService.reset(req);
-        return ResponseEntity.ok(Map.of("message","Contraseña actualizada"));
+        return ResponseEntity.ok(Map.of("message", "Contraseña actualizada"));
     }
 
     @GetMapping("/me")

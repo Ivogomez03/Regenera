@@ -55,7 +55,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Las contraseñas no coinciden");
         }
 
-        if (usuarioRepo.existsByNombreUsuario(req.getNombreUsuario())){
+        if (usuarioRepo.existsByNombreUsuario(req.getNombreUsuario())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "El nombre de usuario ya está en uso");
         }
 
@@ -67,7 +67,7 @@ public class AuthService {
         u.setNombreUsuario(req.getNombreUsuario());
         u.setEmail(req.getEmail());
         u.setHashPassword(encoder.encode(req.getPassword()));
-        u.setHabilitado(autoVerify);  ///CAMBIAR A FALSE
+        u.setHabilitado(false);
         u.setRoles(defaultUserRoles());
         usuarioRepo.save(u);
 
@@ -82,13 +82,13 @@ public class AuthService {
         t.setUsado(false);
         tokenRepo.save(t);
 
-        //ELIMINAR!!!
         if (autoVerify) {
-            verify(t.getToken());
+            verify(t.getToken()); // Llamamos al método interno de validación
+            System.out.println("⚠️ Usuario autoverificado (Modo DEV)");
+        } else {
+            // Pasamos el email Y el token string
+            mailService.enviarVerificacion(u.getEmail(), t.getToken());
         }
-        //else {
-        //    mailService.enviarVerificacion(u.getEmail(), t.getToken());
-        //}
     }
 
     private Set<RolModel> defaultUserRoles() {
@@ -101,15 +101,13 @@ public class AuthService {
         return new HashSet<>(List.of(userRole));
     }
 
-
     public AuthRequest login(LoginRequest req) {
 
         try {
             String email = resolveEmail(req);
             AuthenticationManager authManager = authConfig.getAuthenticationManager();
             authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(email, req.getPassword())
-            );
+                    new UsernamePasswordAuthenticationToken(email, req.getPassword()));
             UserDetails ud = uds.loadUserByUsername(email);
             String token = jwt.generate(ud);
             return new AuthRequest(token, "Bearer", jwt.getExpMin() * 60);
@@ -123,7 +121,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void verify(String tokenStr){
+    public void verify(String tokenStr) {
 
         TokenModel t = tokenRepo.findByTokenAndTipoAndUsadoFalse(tokenStr, "VERIFY")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token inválido"));
@@ -138,10 +136,11 @@ public class AuthService {
 
         t.setUsado(true);
         tokenRepo.save(t);
+
     }
 
     @Transactional
-    public void forgot(ForgotRequest req){
+    public void forgot(ForgotRequest req) {
 
         UsuarioModel u = usuarioRepo.findByEmail(req.getEmail())
                 .orElse(null);
@@ -164,7 +163,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void reset(ResetRequest req){
+    public void reset(ResetRequest req) {
 
         TokenModel t = tokenRepo.findByTokenAndTipoAndUsadoFalse(req.getToken(), "RESET")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token inválido"));
@@ -179,7 +178,6 @@ public class AuthService {
         t.setUsado(true);
         tokenRepo.save(t);
     }
-
 
     public CurrentUserResponse currentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

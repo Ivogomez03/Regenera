@@ -11,7 +11,8 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class AspectoAmbientalModel {
-
+    // 1 Emisiones Gaseosas 2 Efluentes Líquidos 3 Residuos Sólidos 4 Ruido y
+    // Vibraciones 5 Suelos 6 Recursos Naturales 7 Biodiversidad
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_aspecto_ambiental")

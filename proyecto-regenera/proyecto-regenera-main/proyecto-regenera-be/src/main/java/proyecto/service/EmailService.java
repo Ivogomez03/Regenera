@@ -18,6 +18,35 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+    @Value("${app.frontend-url:http://localhost:3000}")
+    private String frontendUrl;
+
+    public void enviarVerificacion(String email, String token) { // <--- Agregamos token
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(email);
+            message.setSubject("Verifica tu cuenta en Regenera");
+
+            // Construimos la URL real
+            // El usuario llegará a: http://localhost:3000/verify-email?token=xyz...
+            String link = frontendUrl + "/verify-email?token=" + token;
+
+            message.setText(
+                    "Hola,\n\n" +
+                            "Gracias por registrarte. Por favor, haz clic en el siguiente enlace para activar tu cuenta:\n\n"
+                            +
+                            link + "\n\n" +
+                            "Este enlace expira en 24 horas.");
+
+            mailSender.send(message);
+            System.out.println("✅ Email enviado a: " + email);
+        } catch (Exception e) {
+            System.out.println("❌ Error enviando email: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public void enviarEmailSolicitudDemo(EmpresaDto empresa) {
 
         enviarEmailAlUsuario(empresa);
@@ -95,7 +124,8 @@ public class EmailService {
         sb.append("═══════════════════════════════════════════\n");
         sb.append("DATOS DEL SOLICITANTE\n");
         sb.append("═══════════════════════════════════════════\n");
-        sb.append("Nombre Completo: ").append(empresa.getNombre()).append(" ").append(empresa.getApellido()).append("\n");
+        sb.append("Nombre Completo: ").append(empresa.getNombre()).append(" ").append(empresa.getApellido())
+                .append("\n");
         sb.append("Email: ").append(empresa.getEmail()).append("\n");
         sb.append("Cargo: ").append(empresa.getCargo()).append("\n");
         sb.append("Teléfono: ").append(empresa.getNumeroCelular()).append("\n\n");
