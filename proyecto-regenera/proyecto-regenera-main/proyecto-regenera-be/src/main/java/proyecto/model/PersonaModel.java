@@ -12,16 +12,16 @@ import proyecto.enums.TipoReponsabilidadEnum;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(
-        name = "persona",
-        schema = "ga",
-        indexes = {
-                @Index(name = "idx_persona_apellido_nombre", columnList = "apellido, nombre"),
-                @Index(name = "idx_persona_responsabilidad", columnList = "tipo_responsabilidad"),
-                @Index(name = "idx_persona_activo", columnList = "activo")
-        }
-)
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Table(name = "persona", schema = "ga", indexes = {
+        @Index(name = "idx_persona_apellido_nombre", columnList = "apellido, nombre"),
+        @Index(name = "idx_persona_responsabilidad", columnList = "tipo_responsabilidad"),
+        @Index(name = "idx_persona_activo", columnList = "activo")
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PersonaModel {
 
     @Id
@@ -55,13 +55,11 @@ public class PersonaModel {
     private TipoReponsabilidadEnum tipoResponsabilidad;
 
     @NotBlank
-    @Lob
-    @Column(name = "asignacion_responsabilidades", nullable = false)
+    @Column(name = "asignacion_responsabilidades", columnDefinition = "TEXT", nullable = false)
     private String asignacionResponsabilidades;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_institucion",
-            foreignKey = @ForeignKey(name = "fk_persona_institucion"))
+    @JoinColumn(name = "id_institucion", foreignKey = @ForeignKey(name = "fk_persona_institucion"))
     private InstitucionModel institucion;
 
     @Column(name = "activo", nullable = false)
@@ -77,8 +75,10 @@ public class PersonaModel {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PersonaModel other)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof PersonaModel other))
+            return false;
         return id != null && id.equals(other.id);
     }
 

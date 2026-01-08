@@ -20,7 +20,7 @@ public class LocalidadModel {
     @Column(name = "nombre_localidad", nullable = false)
     private String nombreLocalidad;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne
     @JoinColumn(name = "id_provincia", nullable = false)
     private ProvinciaModel provincia;
 }

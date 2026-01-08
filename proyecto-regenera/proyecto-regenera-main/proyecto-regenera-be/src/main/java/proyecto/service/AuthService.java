@@ -87,6 +87,7 @@ public class AuthService {
             System.out.println("⚠️ Usuario autoverificado (Modo DEV)");
         } else {
             // Pasamos el email Y el token string
+            System.out.println("📧 Enviando email de verificación a " + u.getEmail());
             mailService.enviarVerificacion(u.getEmail(), t.getToken());
         }
     }

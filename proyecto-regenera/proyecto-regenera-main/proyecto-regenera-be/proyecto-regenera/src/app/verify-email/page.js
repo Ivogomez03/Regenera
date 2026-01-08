@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
-import styles from "../login.module.css"; // Reusamos estilos o crea uno nuevo
+import styles from "../login/login.module.css"; // Reusamos estilos o crea uno nuevo
 import Link from "next/link";
 
 function VerifyContent() {
@@ -20,7 +20,7 @@ function VerifyContent() {
         }
 
         // Llamada automática al backend para validar
-        axios.post(`http://localhost:8080/api/auth/verify?token=${token}`)
+        axios.get(`http://localhost:8080/api/auth/verify?token=${token}`)
             .then(() => {
                 setStatus("success");
                 // Opcional: Redirigir al login después de 3 segundos

@@ -22,6 +22,7 @@ public class AuthRestController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegistroRequest req) {
+        System.out.println("📥 Registro request recibido: " + req);
         authService.register(req);
         return ResponseEntity.ok(Map.of("message", "Te enviamos un mail para verificar la cuenta"));
     }

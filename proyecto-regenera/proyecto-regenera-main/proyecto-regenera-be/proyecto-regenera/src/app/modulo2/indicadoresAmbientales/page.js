@@ -59,7 +59,6 @@ export default function IndicadoresPage() {
 
     const fetchIndicadores = async () => {
         try {
-            // Ajusta la URL si usas una base URL global en axios
             const res = await axios.get("/api/indicadores-ambientales");
             setIndicadores(res.data);
         } catch (error) {
@@ -82,7 +81,7 @@ export default function IndicadoresPage() {
         }
     };
 
-    // Función auxiliar para calcular avance visualmente (ya viene calculado del back si usas el DTO correcto, pero por si acaso)
+    // Función auxiliar para calcular avance visualmente (en %)
     const getAvanceColor = (valor) => {
         if (valor >= 100) return "green";
         if (valor >= 50) return "orange";
@@ -104,12 +103,12 @@ export default function IndicadoresPage() {
                     <p>Registro, monitoreo y seguimiento de objetivos ambientales.</p>
                 </div>
 
-                {/* --- FORMULARIO DE CARGA --- */}
+                {/*  FORMULARIO DE CARGA  */}
                 <section className={styles.formSection}>
                     <h2>Nuevo Registro</h2>
                     <form onSubmit={handleSubmit(onSubmit)} className={styles.formGrid}>
 
-                        {/* Columna 1: Datos del Indicador */}
+                        {/*  Datos del Indicador */}
                         <div className={styles.column}>
                             <h3>Medición</h3>
                             <div className={styles.formGroup}>
@@ -155,7 +154,7 @@ export default function IndicadoresPage() {
                             </div>
                         </div>
 
-                        {/* Columna 2: Objetivos y Responsables */}
+                        {/*  Objetivos y Responsables */}
                         <div className={styles.column}>
                             <h3>Vinculación a Objetivos</h3>
                             <div className={styles.formGroup}>
@@ -203,7 +202,7 @@ export default function IndicadoresPage() {
                     </form>
                 </section>
 
-                {/* --- TABLA MATRIZ DE SEGUIMIENTO --- */}
+                {/*TABLA MATRIZ DE SEGUIMIENTO */}
                 <section className={styles.tableSection}>
                     <h2>Matriz de Seguimiento de Objetivos</h2>
                     <div className={styles.tableWrapper}>

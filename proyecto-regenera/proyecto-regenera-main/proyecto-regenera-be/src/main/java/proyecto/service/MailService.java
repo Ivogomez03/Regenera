@@ -12,24 +12,45 @@ public class MailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
+    @Value("${mail.from}")
+    private String fromEmail;
 
-    public void enviarVerificacion(String email, String token){
-        String link = baseUrl + "/api/auth/verify?token=" + token;
-        send(email, "Verificá tu cuenta", "Hacé clic para verificar: " + link);
+    @Value("${app.frontend-url:http://localhost:3000}")
+    private String frontendUrl;
+
+    public void enviarVerificacion(String email, String token) {
+        String link = frontendUrl + "/verify-email?token=" + token;
+        System.out.println("📧 Mail service enviando mail de verificacion " + email);
+
+        send(email, "Verificá tu cuenta en Regenera",
+                "Hola,\n\nGracias por registrarte. Hacé clic en el siguiente enlace para activar tu cuenta:\n\n"
+                        + link);
     }
 
-    public void enviarReset(String email, String token){
-        String link = baseUrl + "/auth/reset?token=" + token; // si tenés página de reset del front
-        send(email, "Recuperación de contraseña", "Link para recuperar: " + link);
+    public void enviarReset(String email, String token) {
+
+        String link = frontendUrl + "/reset-password?token=" + token;
+
+        send(email, "Recuperación de contraseña",
+                "Para recuperar tu contraseña, hacé clic aquí: " + link);
     }
 
-    private void send(String to, String subject, String text){
-        SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setTo(to);
-        msg.setSubject(subject);
-        msg.setText(text);
-        mailSender.send(msg);
+    private void send(String to, String subject, String text) {
+        try {
+            SimpleMailMessage msg = new SimpleMailMessage();
+
+            msg.setFrom(fromEmail);
+
+            msg.setTo(to);
+            msg.setSubject(subject);
+            msg.setText(text);
+
+            mailSender.send(msg);
+            System.out.println("✅ Email enviado correctamente a: " + to);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error enviando email a " + to + ": " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

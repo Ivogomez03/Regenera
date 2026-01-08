@@ -5,6 +5,9 @@ const axiosClient = axios.create()
 axiosClient.interceptors.request.use(
   (config) => {
     const auth = localStorage.getItem("auth")
+
+    console.log("Interceptor ejecutándose");
+    console.log("Valor crudo en localStorage:", auth);
     if (auth) {
       try {
         const authData = JSON.parse(auth)

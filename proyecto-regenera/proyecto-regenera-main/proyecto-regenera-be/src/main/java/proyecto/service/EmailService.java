@@ -21,7 +21,7 @@ public class EmailService {
     @Value("${app.frontend-url:http://localhost:3000}")
     private String frontendUrl;
 
-    public void enviarVerificacion(String email, String token) { // <--- Agregamos token
+    public void enviarVerificacion(String email, String token) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
