@@ -17,7 +17,7 @@ public class ImpactoAmbientalModel {
     @Column(name = "id_impacto_ambiental")
     private Integer idImpactoAmbiental;
 
-    @Column(name = "impacto_ambiental", nullable = false)
+    @Column(name = "impacto_ambiental", columnDefinition = "TEXT", nullable = false)
     private String impactoAmbiental;
 
     @Column(name = "resumido")

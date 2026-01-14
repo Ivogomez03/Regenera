@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import proyecto.enums.MetodoCalculoEnum;
 import proyecto.enums.TipoIndicadorEnum;
 
 import java.time.LocalDate;
@@ -25,9 +24,6 @@ public class IndicadorAmbientalCreateRequest {
 
     @NotNull(message = "La fecha de registro es obligatoria")
     private LocalDate fechaRegistro;
-
-    @NotNull(message = "El método de cálculo es obligatorio")
-    private MetodoCalculoEnum metodoCalculo;
 
     @NotBlank(message = "La fuente del dato es obligatoria")
     private String fuenteDato;

@@ -21,7 +21,7 @@ public class UsuarioModel {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_perfil_persona")
+    @JoinColumn(name = "id_persona")
     private PersonaModel perfilPersona;
 
     @Column(name = "nombre_usuario", nullable = false)
@@ -46,13 +46,7 @@ public class UsuarioModel {
     private OffsetDateTime ultimoIngreso;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            schema = "auth",
-            name = "usuario_rol",
-            joinColumns = @JoinColumn(name = "id_usuario"),
-            inverseJoinColumns = @JoinColumn(name = "id_rol")
-    )
+    @JoinTable(schema = "auth", name = "usuario_rol", joinColumns = @JoinColumn(name = "id_usuario"), inverseJoinColumns = @JoinColumn(name = "id_rol"))
 
     private Set<RolModel> roles;
 }
-

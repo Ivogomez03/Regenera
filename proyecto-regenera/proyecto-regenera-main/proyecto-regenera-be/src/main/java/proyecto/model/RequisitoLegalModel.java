@@ -38,13 +38,13 @@ public class RequisitoLegalModel {
     @Column(name = "anio", nullable = false)
     private Integer anio;
 
-    @Column(name = "resena")
+    @Column(name = "resena", columnDefinition = "TEXT")
     private String resena;
 
-    @Column(name = "obligacion")
+    @Column(name = "obligacion", columnDefinition = "TEXT")
     private String obligacion;
 
-    @Column(name = "punto_inspeccion")
+    @Column(name = "punto_inspeccion", columnDefinition = "TEXT")
     private String puntoInspeccion;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

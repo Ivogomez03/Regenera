@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from "react"
 import { FileText, Plus, Save, Check, Trash2, Building2, Calendar, Info, Printer } from "lucide-react"
-import axios from "axios";
+//import axios from "axios";
 import Select from "react-select";
 import "./matrizAmbiental.css";
 import axiosClient from "@/app/lib/axiosClient"
@@ -78,7 +78,7 @@ export default function MatrizAmbientalPage() {
   });
 
   useEffect(() => {
-    setIsClient(true); 
+    setIsClient(true);
   }, []);
 
   // --- CARGA INICIAL DE DATOS ---
@@ -106,36 +106,36 @@ export default function MatrizAmbientalPage() {
           axiosClient.get("/api/categorias-aspecto-ambiental"),
         ]);
 
-        setSectores(Array.isArray(sectoresRes.data) 
-          ? sectoresRes.data.map(i => ({ value: i.idSector, label: i.sector })) 
+        setSectores(Array.isArray(sectoresRes.data)
+          ? sectoresRes.data.map(i => ({ value: i.idSector, label: i.sector }))
           : []);
 
-        setActividades(Array.isArray(actividadesRes.data) 
-          ? actividadesRes.data.map(i => ({ value: i.idActividad, label: i.actividad })) 
+        setActividades(Array.isArray(actividadesRes.data)
+          ? actividadesRes.data.map(i => ({ value: i.idActividad, label: i.actividad }))
           : []);
 
-        setAspectos(Array.isArray(aspectosRes.data) 
-          ? aspectosRes.data.map(i => ({ value: i.idAspectoAmbiental, label: i.aspectoAmbiental })) 
+        setAspectos(Array.isArray(aspectosRes.data)
+          ? aspectosRes.data.map(i => ({ value: i.idAspectoAmbiental, label: i.aspectoAmbiental }))
           : []);
 
-        setTipoImpactos(Array.isArray(tiposRes.data) 
-          ? tiposRes.data.map(i => ({ value: i.idTipoImpacto, label: i.tipoImpacto })) 
+        setTipoImpactos(Array.isArray(tiposRes.data)
+          ? tiposRes.data.map(i => ({ value: i.idTipoImpacto, label: i.tipoImpacto }))
           : []);
 
-        setCondiciones(Array.isArray(condicionesRes.data) 
-          ? condicionesRes.data.map(i => ({ value: i.idCondicionImpacto, label: i.condicionImpacto })) 
+        setCondiciones(Array.isArray(condicionesRes.data)
+          ? condicionesRes.data.map(i => ({ value: i.idCondicionImpacto, label: i.condicionImpacto }))
           : []);
 
-        setRequisitos(Array.isArray(requisitosRes.data) 
-          ? requisitosRes.data.map(i => ({ value: i.idRequisitoLegalAsociado, label: i.requisitoLegalAsociado })) 
+        setRequisitos(Array.isArray(requisitosRes.data)
+          ? requisitosRes.data.map(i => ({ value: i.idRequisitoLegalAsociado, label: i.requisitoLegalAsociado }))
           : []);
 
-        setImpactosAmbientales(Array.isArray(impactosRes.data) 
-          ? impactosRes.data.map(i => ({ value: i.idImpactoAmbiental, label: i.impactoAmbiental })) 
+        setImpactosAmbientales(Array.isArray(impactosRes.data)
+          ? impactosRes.data.map(i => ({ value: i.idImpactoAmbiental, label: i.impactoAmbiental }))
           : []);
 
-        setCategorias(Array.isArray(categoriasRes.data) 
-          ? categoriasRes.data.map(i => ({ value: i.id, label: i.categoriaAspectoAmbiental })) 
+        setCategorias(Array.isArray(categoriasRes.data)
+          ? categoriasRes.data.map(i => ({ value: i.id, label: i.categoriaAspectoAmbiental }))
           : []);
 
         console.log("Datos cargados exitosamente");
@@ -148,7 +148,7 @@ export default function MatrizAmbientalPage() {
     };
 
     fetchData();
-  }, []); 
+  }, []);
 
 
 
@@ -166,7 +166,7 @@ export default function MatrizAmbientalPage() {
       reader.onloadend = () => {
         const base64String = reader.result;
         const rawBase64 = base64String.includes(',') ? base64String.split(',')[1] : base64String;
-        setLogoBase64(rawBase64); 
+        setLogoBase64(rawBase64);
       };
       reader.readAsDataURL(file);
     }
@@ -182,229 +182,229 @@ export default function MatrizAmbientalPage() {
 
   function normalizeText(text) {
     return text
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .trim();
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim();
+  }
+
+  const handleAgregarOpcion = async ({
+    inputValue,
+    opciones,
+    setOpciones,
+    setSelected,
+    setInput,
+    endpoint,
+    idField,
+    labelField,
+    extraFields = {}
+  }) => {
+    const texto = inputValue.trim();
+    if (!texto) return;
+
+    const yaExiste = opciones.some(
+      (o) => normalizeText(o.label) === normalizeText(texto)
+    );
+    if (yaExiste) {
+      alert("Ese valor ya existe.");
+      setInput("");
+      return;
     }
-  
-    const handleAgregarOpcion = async ({
-        inputValue,
-        opciones,
-        setOpciones,
-        setSelected,
-        setInput,
-        endpoint,
-        idField,
-        labelField,
-        extraFields = {}
-        }) => {
-        const texto = inputValue.trim();
-        if (!texto) return;
 
-        const yaExiste = opciones.some(
-            (o) => normalizeText(o.label)  === normalizeText(texto)
-        );
-        if (yaExiste) {
-            alert("Ese valor ya existe.");
-            setInput("");
-            return;
+    try {
+
+      if (endpoint === '/api/actividades') {
+        if (!sectorSeleccionado) {
+          alert("Debe seleccionar un sector antes de agregar una actividad.");
+          return;
         }
+      }
 
-        try {
-
-            if (endpoint === '/api/actividades') {
-                if (!sectorSeleccionado) {
-                    alert("Debe seleccionar un sector antes de agregar una actividad.");
-                    return;
-                }
-            }
-            
-            if (endpoint === '/api/aspectos-ambientales') {
-                if (!impactoAmbientalSeleccionado || !categoriaSeleccionada) {
-                    alert("Debe seleccionar un impacto ambiental y una categoría antes de agregar un aspecto ambiental.");
-                    return;
-                }
-            }
-            
-
-            const body = {
-                [labelField]: texto,
-                ...extraFields
-            };
-
-            console.log("POST a", endpoint, "con body:", body);
-            const res = await axiosClient.post(endpoint, body);
-
-            const nuevo = res.data
-
-            const nuevaOpcion = {
-                value: nuevo[idField],
-                label: nuevo[labelField]
-            };
-
-            const actualizadas = [...opciones, nuevaOpcion];
-            setOpciones(actualizadas);
-            setSelected(nuevaOpcion);
-
-            setInput("");
-
-            alert("Opción agregada correctamente.");
-
-        } catch (err) {
-            console.error("Error al guardar:", err);
-            alert("Ocurrió un error al guardar.");
+      if (endpoint === '/api/aspectos-ambientales') {
+        if (!impactoAmbientalSeleccionado || !categoriaSeleccionada) {
+          alert("Debe seleccionar un impacto ambiental y una categoría antes de agregar un aspecto ambiental.");
+          return;
         }
-    };
+      }
+
+
+      const body = {
+        [labelField]: texto,
+        ...extraFields
+      };
+
+      console.log("POST a", endpoint, "con body:", body);
+      const res = await axiosClient.post(endpoint, body);
+
+      const nuevo = res.data
+
+      const nuevaOpcion = {
+        value: nuevo[idField],
+        label: nuevo[labelField]
+      };
+
+      const actualizadas = [...opciones, nuevaOpcion];
+      setOpciones(actualizadas);
+      setSelected(nuevaOpcion);
+
+      setInput("");
+
+      alert("Opción agregada correctamente.");
+
+    } catch (err) {
+      console.error("Error al guardar:", err);
+      alert("Ocurrió un error al guardar.");
+    }
+  };
 
 
 
   /*LIMITAR INPUT NUMERICO ENTRE 0 Y 10*/
-    const handleChange = (e, setValor) => {
-        let val = e.target.value;
+  const handleChange = (e, setValor) => {
+    let val = e.target.value;
 
-        // Permitir campo vacío
-        if (val === '') {
-        setValor('');
-        return;
-        }
-
-        val = parseInt(val, 10);
-
-        // Limitar entre 0 y 10
-        if (val >= 0 && val <= 10) {
-            setValor(val);
-        } else if (val > 10) {
-            setValor(10);
-        } else if (val < 0) {
-            setValor(0);
-        }
-    };
-
-    const handleAñadirFila = async () => {
-         // Validación 
-          if (
-            !sectorSeleccionado ||
-            !actividadSeleccionada ||
-            !aspectoSeleccionado ||
-            !impactoAmbientalSeleccionado ||
-            !tipoImpactoSeleccionado ||
-            !categoriaSeleccionada ||
-            !condicionSeleccionada ||
-            valueSeveridad === '' ||
-            valueMagnitud === '' ||
-            valueFrecuencia === '' ||
-            valueReversibilidad === '' ||
-            !requisitoSeleccionado ||
-            !valueControl?.trim() ||
-            !valueObservaciones?.trim()
-        ) {
-            alert('Por favor, complete todos los campos obligatorios antes de añadir una fila.');
-            return;
-        }
-
-        const severidad = parseInt(valueSeveridad, 10);
-        const magnitud = parseInt(valueMagnitud, 10);
-        const frecuencia = parseInt(valueFrecuencia, 10);
-        const reversibilidad = parseInt(valueReversibilidad, 10);
-
-        const valoracionCalculada = severidad + magnitud + frecuencia + reversibilidad;
-
-        const significanciaCalculada = valoracionCalculada <= 15 ? 'Impacto no significativo' : 'Impacto significativo';
-
-        const nuevaFila = {
-            //id: filasTabla.length + 1,
-            id: Date.now(),
-            esNuevo: true,
-            sector: sectorSeleccionado?.value,
-            sectorNombre: sectorSeleccionado?.label,
-            actividad: {
-                id: actividadSeleccionada?.value,
-                nombre: actividadSeleccionada?.label
-            },
-            aspecto: {
-                id: aspectoSeleccionado?.value,
-                nombre: aspectoSeleccionado?.label,
-            },
-            impacto: {
-                id: impactoAmbientalSeleccionado?.value,
-                nombre: impactoAmbientalSeleccionado?.label ?? ''
-            },
-            tipoImpacto: {
-                id:tipoImpactoSeleccionado?.value,
-                nombre:tipoImpactoSeleccionado?.label ?? ''
-            },
-            condicion: {
-                id:condicionSeleccionada?.value,
-                nombre:condicionSeleccionada?.label ?? ''
-            },
-            severidad: valueSeveridad,
-            magnitud: valueMagnitud,
-            frecuencia: valueFrecuencia,
-            reversibilidad: valueReversibilidad,
-            valoracion: valoracionCalculada,
-            significancia: significanciaCalculada,
-            requisito: {
-                id:requisitoSeleccionado?.value,
-                nombre:requisitoSeleccionado?.label ?? ''
-            },
-            control: valueControl,
-            observaciones: valueObservaciones,
-        };
-
-        setFilasTabla(prev => [...prev, nuevaFila]);
-        setTieneCambios(true);
-
-        setActividadSeleccionada(null);
-        setAspectoSeleccionado(null);
-        setImpactoAmbientalSeleccionado(null);
-        setTipoImpactoSeleccionado(null);
-        setCondicionSeleccionada(null);
-        setRequisitoSeleccionado(null);
-
-        setCategoriaSeleccionada(null);
-
-        setValueSeveridad('');
-        setValueMagnitud('');
-        setValueFrecuencia('');
-        setValueReversibilidad('');
-        setValueControl('');
-        setValueObservaciones('');
-    };
-
-    // --- Eliminar fila ---
-    const handleEliminarFila = (id) => {
-        if(confirm("¿Estás seguro de eliminar esta fila?")) {
-            setFilasTabla(prev => prev.filter(fila => fila.id !== id));
-            setTieneCambios(true);
-        }
-    };
-    
-
-    // --- Filtrar filas según el sector seleccionado ---
-    const filasFiltradas = filasTabla.filter(
-        (fila) => fila.sector === sectorSeleccionado?.value
-    );
-
-
-
-    const handlePrint = () => {
-        window.print()
+    // Permitir campo vacío
+    if (val === '') {
+      setValor('');
+      return;
     }
 
-    if (isLoading) {
-      return (
-          <div className="flex h-screen w-full items-center justify-center bg-gray-50">
-              <div className="text-center">
-                  <Image src="/logo2.png" alt="Cargando..." width={100} height={50} className="mx-auto animate-pulse" />
-                  <p className="mt-4 text-gray-600">Cargando datos...</p>
-              </div>
-          </div>
-      );
+    val = parseInt(val, 10);
+
+    // Limitar entre 0 y 10
+    if (val >= 0 && val <= 10) {
+      setValor(val);
+    } else if (val > 10) {
+      setValor(10);
+    } else if (val < 0) {
+      setValor(0);
+    }
+  };
+
+  const handleAñadirFila = async () => {
+    // Validación 
+    if (
+      !sectorSeleccionado ||
+      !actividadSeleccionada ||
+      !aspectoSeleccionado ||
+      !impactoAmbientalSeleccionado ||
+      !tipoImpactoSeleccionado ||
+      !categoriaSeleccionada ||
+      !condicionSeleccionada ||
+      valueSeveridad === '' ||
+      valueMagnitud === '' ||
+      valueFrecuencia === '' ||
+      valueReversibilidad === '' ||
+      !requisitoSeleccionado ||
+      !valueControl?.trim() ||
+      !valueObservaciones?.trim()
+    ) {
+      alert('Por favor, complete todos los campos obligatorios antes de añadir una fila.');
+      return;
+    }
+
+    const severidad = parseInt(valueSeveridad, 10);
+    const magnitud = parseInt(valueMagnitud, 10);
+    const frecuencia = parseInt(valueFrecuencia, 10);
+    const reversibilidad = parseInt(valueReversibilidad, 10);
+
+    const valoracionCalculada = severidad + magnitud + frecuencia + reversibilidad;
+
+    const significanciaCalculada = valoracionCalculada <= 15 ? 'Impacto no significativo' : 'Impacto significativo';
+
+    const nuevaFila = {
+      //id: filasTabla.length + 1,
+      id: Date.now(),
+      esNuevo: true,
+      sector: sectorSeleccionado?.value,
+      sectorNombre: sectorSeleccionado?.label,
+      actividad: {
+        id: actividadSeleccionada?.value,
+        nombre: actividadSeleccionada?.label
+      },
+      aspecto: {
+        id: aspectoSeleccionado?.value,
+        nombre: aspectoSeleccionado?.label,
+      },
+      impacto: {
+        id: impactoAmbientalSeleccionado?.value,
+        nombre: impactoAmbientalSeleccionado?.label ?? ''
+      },
+      tipoImpacto: {
+        id: tipoImpactoSeleccionado?.value,
+        nombre: tipoImpactoSeleccionado?.label ?? ''
+      },
+      condicion: {
+        id: condicionSeleccionada?.value,
+        nombre: condicionSeleccionada?.label ?? ''
+      },
+      severidad: valueSeveridad,
+      magnitud: valueMagnitud,
+      frecuencia: valueFrecuencia,
+      reversibilidad: valueReversibilidad,
+      valoracion: valoracionCalculada,
+      significancia: significanciaCalculada,
+      requisito: {
+        id: requisitoSeleccionado?.value,
+        nombre: requisitoSeleccionado?.label ?? ''
+      },
+      control: valueControl,
+      observaciones: valueObservaciones,
+    };
+
+    setFilasTabla(prev => [...prev, nuevaFila]);
+    setTieneCambios(true);
+
+    setActividadSeleccionada(null);
+    setAspectoSeleccionado(null);
+    setImpactoAmbientalSeleccionado(null);
+    setTipoImpactoSeleccionado(null);
+    setCondicionSeleccionada(null);
+    setRequisitoSeleccionado(null);
+
+    setCategoriaSeleccionada(null);
+
+    setValueSeveridad('');
+    setValueMagnitud('');
+    setValueFrecuencia('');
+    setValueReversibilidad('');
+    setValueControl('');
+    setValueObservaciones('');
+  };
+
+  // --- Eliminar fila ---
+  const handleEliminarFila = (id) => {
+    if (confirm("¿Estás seguro de eliminar esta fila?")) {
+      setFilasTabla(prev => prev.filter(fila => fila.id !== id));
+      setTieneCambios(true);
+    }
+  };
+
+
+  // --- Filtrar filas según el sector seleccionado ---
+  const filasFiltradas = filasTabla.filter(
+    (fila) => fila.sector === sectorSeleccionado?.value
+  );
+
+
+
+  const handlePrint = () => {
+    window.print()
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Image src="/logo2.png" alt="Cargando..." width={100} height={50} className="mx-auto animate-pulse" />
+          <p className="mt-4 text-gray-600">Cargando datos...</p>
+        </div>
+      </div>
+    );
   }
 
 
- return (
+  return (
     <main className={styles.main}>
       <div className={styles.backgroundPattern}></div>
 
@@ -791,17 +791,17 @@ export default function MatrizAmbientalPage() {
               {/* Numeric Fields */}
               <div className={styles.formGroup}>
                 <label>Severidad (0-10)
-                 <span className={styles.tooltip}>
+                  <span className={styles.tooltip}>
                     <Info size={16} className={styles.tooltipIcon} />
-                        <span className={styles.tooltiptext}>
-                            <p><strong>- Baja (1-3):</strong> Bajo grado de afectación del impacto sobre la variable en consideración, 
-                            la condición basal del medio se mantiene.</p>
-                            <p><strong>- Media (4-6):</strong> Mediano grado de afectación del impacto sobre la variable, implica cambios 
-                            respecto a la condición basal pero dentro de rangos aceptables.</p>
-                            <p><strong>- Alta (7-10):</strong> Alto grado de afectación del impacto sobre la variable, alteración 
-                            significativa de la condición basal y en algunos casos inaceptables.</p>
-                         </span>
+                    <span className={styles.tooltiptext}>
+                      <p><strong>- Baja (1-3):</strong> Bajo grado de afectación del impacto sobre la variable en consideración,
+                        la condición basal del medio se mantiene.</p>
+                      <p><strong>- Media (4-6):</strong> Mediano grado de afectación del impacto sobre la variable, implica cambios
+                        respecto a la condición basal pero dentro de rangos aceptables.</p>
+                      <p><strong>- Alta (7-10):</strong> Alto grado de afectación del impacto sobre la variable, alteración
+                        significativa de la condición basal y en algunos casos inaceptables.</p>
                     </span>
+                  </span>
                 </label>
                 <input
                   type="number"
@@ -815,16 +815,16 @@ export default function MatrizAmbientalPage() {
 
               <div className={styles.formGroup}>
                 <label>Magnitud (0-10)
-                <span className={styles.tooltip}>
+                  <span className={styles.tooltip}>
                     <Info size={16} className={styles.tooltipIcon} />
-                        <span className={styles.tooltiptext}>
-                            <p><strong>- Puntual (1-3):</strong> Supone una incidencia puntual en el área estudiada, el impacto se manifiesta
-                            en el sector donde se ubica la fuente</p>
-                            <p><strong>- Dispersa (4-6):</strong> Se detecta en una gran parte del territorio.</p>
-                            <p><strong>- Extendida (7-10):</strong> Se manifiesta de manera generalizada en todo el entorno considerado e incluso
-                            fuera del entorno de la fuente.</p>
-                        </span>
+                    <span className={styles.tooltiptext}>
+                      <p><strong>- Puntual (1-3):</strong> Supone una incidencia puntual en el área estudiada, el impacto se manifiesta
+                        en el sector donde se ubica la fuente</p>
+                      <p><strong>- Dispersa (4-6):</strong> Se detecta en una gran parte del territorio.</p>
+                      <p><strong>- Extendida (7-10):</strong> Se manifiesta de manera generalizada en todo el entorno considerado e incluso
+                        fuera del entorno de la fuente.</p>
                     </span>
+                  </span>
                 </label>
                 <input
                   type="number"
@@ -838,17 +838,17 @@ export default function MatrizAmbientalPage() {
 
               <div className={styles.formGroup}>
                 <label>Frecuencia (0-10)
-                <span className={styles.tooltip}>
+                  <span className={styles.tooltip}>
                     <Info size={16} className={styles.tooltipIcon} />
-                        <span className={styles.tooltiptext}>
-                            <p><strong>- Corta duración (1-3):</strong> Se presenta en forma intermitente o continua, pero con un plazo limitado 
-                            de manifestación que puede determinarse (hasta dos años aprox)</p>
-                            <p><strong>- Media Duración (4-6):</strong> Se extiende en el tiempo y luego de un tiempo finaliza la acción que lo genera
-                            (dos a cinco años aprox)</p>
-                            <p><strong>- Larga Duración (7-10):</strong> Aquél que supone una alteración indefinida o muy alta duración en el tiempo
-                            (por más de cinco años)</p>
-                        </span>
+                    <span className={styles.tooltiptext}>
+                      <p><strong>- Corta duración (1-3):</strong> Se presenta en forma intermitente o continua, pero con un plazo limitado
+                        de manifestación que puede determinarse (hasta dos años aprox)</p>
+                      <p><strong>- Media Duración (4-6):</strong> Se extiende en el tiempo y luego de un tiempo finaliza la acción que lo genera
+                        (dos a cinco años aprox)</p>
+                      <p><strong>- Larga Duración (7-10):</strong> Aquél que supone una alteración indefinida o muy alta duración en el tiempo
+                        (por más de cinco años)</p>
                     </span>
+                  </span>
                 </label>
                 <input
                   type="number"
@@ -862,15 +862,15 @@ export default function MatrizAmbientalPage() {
 
               <div className={styles.formGroup}>
                 <label>Reversibilidad (0-10)
-                <span className={styles.tooltip}>
+                  <span className={styles.tooltip}>
                     <Info size={16} className={styles.tooltipIcon} />
-                        <span className={styles.tooltiptext}>
-                            <p><strong>- Reversible (1-5):</strong> La afectación puede ser asimilada por el entorno de forma medible, a corto, 
-                            mediano o largo plazo, debido al funcionamiento de los procesos naturales.</p>
-                            <p><strong>- Irreversible (6-10):</strong> Supone la imposibilidad o dificultad extrema de retomar, por medios naturales 
-                            a la condición inicial por la acción que lo produce</p>
-                        </span>
+                    <span className={styles.tooltiptext}>
+                      <p><strong>- Reversible (1-5):</strong> La afectación puede ser asimilada por el entorno de forma medible, a corto,
+                        mediano o largo plazo, debido al funcionamiento de los procesos naturales.</p>
+                      <p><strong>- Irreversible (6-10):</strong> Supone la imposibilidad o dificultad extrema de retomar, por medios naturales
+                        a la condición inicial por la acción que lo produce</p>
                     </span>
+                  </span>
                 </label>
                 <input
                   type="number"
@@ -1248,7 +1248,7 @@ export default function MatrizAmbientalPage() {
                 Guardado exitosamente
               </div>
             )}
-            {mensajeGuardado && ( 
+            {mensajeGuardado && (
               <div className={styles.saveMessage}>{mensajeGuardado}</div>
             )}
           </div>

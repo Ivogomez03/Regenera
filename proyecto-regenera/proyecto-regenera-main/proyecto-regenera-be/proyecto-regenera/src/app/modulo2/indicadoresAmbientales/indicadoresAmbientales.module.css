@@ -1,8 +1,10 @@
 .main {
     min-height: 100vh;
-    background-color: #f5f7fa;
-    padding-bottom: 2rem;
+    background: linear-gradient(135deg, #f8fafa 0%, #e8f3f2 100%);
+    overflow-x: hidden;
+    font-family: "Outfit", sans-serif;
 }
+
 
 .topHeader {
     display: flex;
@@ -22,32 +24,97 @@
     font-weight: 500;
 }
 
+.containerPage {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 3rem 1.5rem 3rem;
+    position: relative;
+}
+
 .container {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+    width: 100%;
+    max-width: 1600px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 3rem;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(20, 85, 81, 0.12);
+    position: relative;
+    z-index: 1;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.headerSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.titleIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #145551 0%, #1a6d67 100%);
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+    color: white;
+    box-shadow: 0 8px 24px rgba(20, 85, 81, 0.25);
 }
 
 .headerSection h1 {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #2d3748;
-    margin-bottom: 0.5rem;
+    color: #145551;
+    font-size: 2rem;
+    font-weight: 700;
+
 }
 
-.iconTitle {
-    color: #319795;
-    /* Color similar a tus otros módulos */
-}
+
 
 /* Formulario */
+.titleWithIcon {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+    color: #145551;
+
+}
+
+
 .formSection {
-    background: white;
+    background: rgba(248, 250, 250, 0.5);
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     margin-bottom: 2rem;
+}
+
+.formTitle {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0;
 }
 
 .formGrid {
@@ -79,7 +146,7 @@
 .formGroup label {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #4a5568;
+    color: #145551;
 }
 
 .formGroup input,
@@ -87,6 +154,7 @@
 .formGroup textarea,
 .row input {
     padding: 0.75rem;
+    background-color: white;
     border: 1px solid #cbd5e0;
     border-radius: 6px;
     font-size: 1rem;
@@ -107,21 +175,34 @@
     justify-content: flex-end;
 }
 
+
+
+/* Submit Button */
 .submitButton {
-    background-color: #319795;
-    color: white;
-    padding: 1rem 2rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
     display: flex;
     align-items: center;
-    transition: background 0.2s;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #eb9121 0%, #d67f19 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(235, 145, 33, 0.25);
+    margin-left: auto;
 }
 
 .submitButton:hover {
-    background-color: #2c7a7b;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(235, 145, 33, 0.35);
+}
+
+.submitButton:active {
+    transform: translateY(0);
 }
 
 .error {
@@ -133,10 +214,20 @@
 /* Tabla */
 .tableSection {
     background: white;
+
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
+
+.tableSection h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #145551;
+
+    margin-bottom: 1rem;
+}
+
 
 .tableWrapper {
     overflow-x: auto;
@@ -156,9 +247,10 @@
 }
 
 .table th {
-    background-color: #f7fafc;
+    background-color: #145551;
+
     font-weight: 600;
-    color: #4a5568;
+    color: white;
 }
 
 /* Barra de progreso */

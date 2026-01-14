@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
+//import axios from "axios";
+import axios from "@/app/lib/axiosClient";
 import styles from "./modulo1.module.css";
 import Image from 'next/image';
 import Link from 'next/link';

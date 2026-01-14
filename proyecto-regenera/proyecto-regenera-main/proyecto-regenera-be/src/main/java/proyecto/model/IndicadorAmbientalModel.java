@@ -2,7 +2,6 @@ package proyecto.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import proyecto.enums.MetodoCalculoEnum;
 import proyecto.enums.TipoIndicadorEnum;
 
 import java.time.LocalDate;
@@ -35,10 +34,6 @@ public class IndicadorAmbientalModel {
 
     @Column(name = "fecha_registro", nullable = false)
     private LocalDate fechaRegistro;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "metodo_calculo")
-    private MetodoCalculoEnum metodoCalculo;
 
     @Column(name = "fuente_dato")
     private String fuenteDato;

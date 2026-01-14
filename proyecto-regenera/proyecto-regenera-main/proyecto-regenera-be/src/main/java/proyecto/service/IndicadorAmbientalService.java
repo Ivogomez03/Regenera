@@ -38,7 +38,6 @@ public class IndicadorAmbientalService {
                 .valorMedido(req.getValorMedido())
                 .fechaLineaBase(req.getFechaLineaBase())
                 .fechaRegistro(req.getFechaRegistro())
-                .metodoCalculo(req.getMetodoCalculo())
                 .fuenteDato(req.getFuenteDato())
                 .observaciones(req.getObservaciones())
                 // Responsable carga
