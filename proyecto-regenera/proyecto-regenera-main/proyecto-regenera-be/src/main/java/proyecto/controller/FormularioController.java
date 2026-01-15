@@ -22,7 +22,8 @@ public class FormularioController {
     private final UsuarioRepository usuarioRepo;
     private final CurrentUserService currentUserService;
 
-    public FormularioController(FormularioService service, UsuarioRepository usuarioRepo, CurrentUserService currentUserService) {
+    public FormularioController(FormularioService service, UsuarioRepository usuarioRepo,
+            CurrentUserService currentUserService) {
         this.service = service;
         this.usuarioRepo = usuarioRepo;
         this.currentUserService = currentUserService;
@@ -44,7 +45,6 @@ public class FormularioController {
                 .body(response);
     }
 
-
     @PutMapping("/{id}")
     public ResponseEntity<FormularioDto> actualizar(
             @PathVariable Long id,
@@ -62,14 +62,17 @@ public class FormularioController {
     }
 
     @GetMapping("/{id}")
-    public FormularioDto obtener(
-            @PathVariable Long id) {
-        return FormularioDto.of(service.obtener(id, currentUserService.getUsername()));
+    public ResponseEntity<FormularioResponse> obtener(@PathVariable Long id) {
+
+        FormularioResponse response = service.obtener(id, currentUserService.getUsername());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public List<FormularioDto> listar() {
-        return service.listar(currentUserService.getUsername());
+    public ResponseEntity<List<FormularioResponse>> listar() {
+        // Asegúrate de que service.listar() también devuelva List<FormularioResponse>
+        return ResponseEntity.ok(service.listar(currentUserService.getUsername()));
     }
 
 }

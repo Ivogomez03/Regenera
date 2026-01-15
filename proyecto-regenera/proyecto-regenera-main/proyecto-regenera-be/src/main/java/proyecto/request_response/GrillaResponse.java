@@ -8,17 +8,29 @@ import lombok.Data;
 public class GrillaResponse {
     Long idItem;
 
-    Long idActividad;
+    Long idSector;
+
+    String sector;
+
+    Integer idActividad;
 
     String actividad;
 
-    Long idAspectoAmbiental;
+    Integer idAspectoAmbiental;
 
     String aspectoAmbiental;
 
-    Long idImpactoAmbiental;
+    Integer idImpactoAmbiental;
 
     String impactoAmbiental;
+
+    Integer idTipoImpacto;
+
+    String tipoImpacto;
+
+    Integer idCondicionImpacto;
+
+    String condicionImpacto;
 
     Integer severidad;
 
@@ -31,6 +43,8 @@ public class GrillaResponse {
     Integer valoracion;
 
     String impactoSignificado;
+
+    Long idRequisitoLegalAsociado;
 
     String requisitoLegalAsociado;
 

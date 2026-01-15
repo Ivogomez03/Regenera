@@ -19,8 +19,9 @@ public class GrillaModel {
     @JoinColumn(name = "id_formulario", nullable = false)
     private FormularioModel formulario;
 
-    @Column(name = "id_sector", nullable = false)
-    private Long idSector;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_sector", nullable = false)
+    private SectorModel sector;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_actividad", nullable = false)

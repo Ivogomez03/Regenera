@@ -27,7 +27,7 @@ public class FormularioResponse {
 
     LocalDateTime actualizadoEn;
 
-    List<SectorAgrupado> sectores;
+    List<GrillaResponse> items;
 
     String logoEmpresa;
 }

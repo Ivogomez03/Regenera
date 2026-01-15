@@ -20,8 +20,7 @@ public class GrillaService {
     public GrillaService(
             GrillaRepository grillaRepo,
             ImpactoSignificadoRepository impactoSignificadoRepo,
-            FormularioService formularioService
-    ) {
+            FormularioService formularioService) {
         this.grillaRepo = grillaRepo;
         this.impactoSignificadoRepo = impactoSignificadoRepo;
         this.formularioService = formularioService;
@@ -36,7 +35,8 @@ public class GrillaService {
     private void recalcular(GrillaModel g) {
         int total = g.getSeveridad() + g.getMagnitud() + g.getFrecuencia() + g.getReversibilidad();
         g.setValoracion(total);
-        g.setImpactoSignificado(calcularImpacto(g.getSeveridad(), g.getMagnitud(), g.getFrecuencia(), g.getReversibilidad()));
+        g.setImpactoSignificado(
+                calcularImpacto(g.getSeveridad(), g.getMagnitud(), g.getFrecuencia(), g.getReversibilidad()));
     }
 
     @Transactional
@@ -46,7 +46,10 @@ public class GrillaService {
 
         var grilla = new GrillaModel();
         grilla.setFormulario(formulario);
-        grilla.setIdSector(req.idSector());
+
+        SectorModel sector = new SectorModel();
+        sector.setIdSector(req.idSector());
+        grilla.setSector(sector);
 
         ActividadModel actividad = new ActividadModel();
         actividad.setIdActividad(req.idActividad().intValue());
@@ -92,7 +95,9 @@ public class GrillaService {
 
         formularioService.mustBeMine(db.getFormulario().getIdFormulario(), email);
 
-        db.setIdSector(req.idSector());
+        SectorModel sector = new SectorModel();
+        sector.setIdSector(req.idSector());
+        db.setSector(sector);
 
         ActividadModel actividad = new ActividadModel();
         actividad.setIdActividad(req.idActividad().intValue());

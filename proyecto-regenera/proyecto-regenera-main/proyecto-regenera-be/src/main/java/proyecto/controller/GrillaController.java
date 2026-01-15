@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import proyecto.model.GrillaModel;
 import proyecto.repository.GrillaRepository;
 import proyecto.request_response.GrillaCreateRequest;
+import proyecto.request_response.GrillaResponse;
 import proyecto.service.CurrentUserService;
 import proyecto.service.FormularioService;
 import proyecto.service.GrillaService;
@@ -20,8 +21,9 @@ public class GrillaController {
     private final GrillaRepository grillaRepository;
     private final CurrentUserService currentUserService;
 
-    public GrillaController(GrillaService service, FormularioService formularioService, GrillaRepository grillaRepository,
-                            CurrentUserService currentUserService) {
+    public GrillaController(GrillaService service, FormularioService formularioService,
+            GrillaRepository grillaRepository,
+            CurrentUserService currentUserService) {
         this.service = service;
         this.formularioService = formularioService;
         this.grillaRepository = grillaRepository;
@@ -53,23 +55,26 @@ public class GrillaController {
     }
 
     @GetMapping("/formularios/{idFormulario}/items")
-    public List<GrillaModel> listarPorFormulario(
+    public ResponseEntity<List<GrillaResponse>> listarPorFormulario(
             @PathVariable Long idFormulario,
             @RequestParam(name = "sector", required = false) Long sector) {
 
         String username = currentUserService.getUsername();
-        return formularioService.listarItems(idFormulario, username, sector);
+
+        var formularioResponse = formularioService.obtener(idFormulario, username);
+
+        return ResponseEntity.ok(formularioResponse.getItems());
     }
 
     @GetMapping("/sectores")
-    public List<Long> sectoresDelUsuario(){
+    public List<Long> sectoresDelUsuario() {
         String username = currentUserService.getUsername();
         return grillaRepository.findDistinctSectoresByUsuarioEmail(username);
     }
 
     @GetMapping("/formularios/{idFormulario}/sectores")
     public List<Long> sectoresPorFormulario(
-            @PathVariable Long idFormulario){
+            @PathVariable Long idFormulario) {
         String username = currentUserService.getUsername();
         return grillaRepository.findDistinctSectoresByFormularioAndEmail(idFormulario, username);
     }

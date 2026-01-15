@@ -1,34 +1,47 @@
 package proyecto.dto;
 
 public record GrillaDto(
+                Long idItem,
 
-        Long idActividad,
+                Long idActividad,
 
-        Long idAspectoAmbiental,
+                Long idAspectoAmbiental,
 
-        Long idImpactoAmbiental,
+                Long idImpactoAmbiental,
 
-        Long idTipoImpacto,
+                Long idTipoImpacto,
 
-        Long idCondicionImpacto,
+                Long idCondicionImpacto,
 
-        Integer severidad,
+                String sector,
 
-        Integer magnitud,
+                String actividad,
 
-        Integer frecuencia,
+                String aspectoAmbiental,
 
-        Integer reversibilidad,
+                String impactoAmbiental,
 
-        Integer valoracion,
+                String tipoImpacto,
 
-        Long idImpactoSignificado,
+                String condicionImpacto,
 
-        Long idRequisitoLegalAsociado,
+                Integer severidad,
 
-        String control,
+                Integer magnitud,
 
-        String observaciones
-) {
+                Integer frecuencia,
+
+                Integer reversibilidad,
+
+                Integer valoracion,
+
+                String impactoSignificado,
+                Long idRequisitoLegalAsociado,
+
+                String requisitoLegalAsociado,
+
+                String control,
+
+                String observaciones) {
 
 }

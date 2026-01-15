@@ -66,6 +66,7 @@ export default function MatrizAmbientalPage() {
   const [codigoFormulario, setCodigoFormulario] = useState('');
   const [fechaFormulario, setFechaFormulario] = useState('');
   const [logoFormulario, setLogoFormulario] = useState('');
+  const [idFormularioActual, setIdFormularioActual] = useState(null);
 
   const [isGuardando, setIsGuardando] = useState(false) // Added for save state
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -81,21 +82,14 @@ export default function MatrizAmbientalPage() {
     setIsClient(true);
   }, []);
 
-  // --- CARGA INICIAL DE DATOS ---
+
+  // CARGA INICIAL DE DATOS
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [
-          sectoresRes,
-          actividadesRes,
-          aspectosRes,
-          tiposRes,
-          condicionesRes,
-          requisitosRes,
-          impactosRes,
-          categoriasRes
-        ] = await Promise.all([
+        // 1. Cargar las opciones (Solo para los Selects de "Agregar Nueva Fila")
+        const [sectoresRes, actividadesRes, aspectosRes, tiposRes, condicionesRes, requisitosRes, impactosRes, categoriasRes] = await Promise.all([
           axiosClient.get("/api/sectores"),
           axiosClient.get("/api/actividades"),
           axiosClient.get("/api/aspectos-ambientales"),
@@ -106,42 +100,64 @@ export default function MatrizAmbientalPage() {
           axiosClient.get("/api/categorias-aspecto-ambiental"),
         ]);
 
-        setSectores(Array.isArray(sectoresRes.data)
-          ? sectoresRes.data.map(i => ({ value: i.idSector, label: i.sector }))
-          : []);
+        // Llenamos los selects
+        setSectores(sectoresRes.data.map(i => ({ value: i.idSector, label: i.sector })));
+        setActividades(actividadesRes.data.map(i => ({ value: i.idActividad, label: i.actividad })));
+        setAspectos(aspectosRes.data.map(i => ({ value: i.idAspectoAmbiental, label: i.aspectoAmbiental })));
+        setTipoImpactos(tiposRes.data.map(i => ({ value: i.idTipoImpacto, label: i.tipoImpacto })));
+        setCondiciones(condicionesRes.data.map(i => ({ value: i.idCondicionImpacto, label: i.condicionImpacto })));
+        setRequisitos(requisitosRes.data.map(i => ({ value: i.idRequisitoLegalAsociado, label: i.requisitoLegalAsociado })));
+        setImpactosAmbientales(impactosRes.data.map(i => ({ value: i.idImpactoAmbiental, label: i.impactoAmbiental })));
+        setCategorias(categoriasRes.data.map(i => ({ value: i.id, label: i.categoriaAspectoAmbiental })));
 
-        setActividades(Array.isArray(actividadesRes.data)
-          ? actividadesRes.data.map(i => ({ value: i.idActividad, label: i.actividad }))
-          : []);
+        console.log("Opciones cargadas. Recuperando datos del usuario...");
 
-        setAspectos(Array.isArray(aspectosRes.data)
-          ? aspectosRes.data.map(i => ({ value: i.idAspectoAmbiental, label: i.aspectoAmbiental }))
-          : []);
+        // 2. RECUPERAR DATOS GUARDADOS
+        const resFormularios = await axiosClient.get('/api/formularios');
 
-        setTipoImpactos(Array.isArray(tiposRes.data)
-          ? tiposRes.data.map(i => ({ value: i.idTipoImpacto, label: i.tipoImpacto }))
-          : []);
+        if (resFormularios.data && resFormularios.data.length > 0) {
+          const ultimoForm = resFormularios.data[resFormularios.data.length - 1];
 
-        setCondiciones(Array.isArray(condicionesRes.data)
-          ? condicionesRes.data.map(i => ({ value: i.idCondicionImpacto, label: i.condicionImpacto }))
-          : []);
+          // Restaurar Cabecera
+          setIdFormularioActual(ultimoForm.idFormulario);
+          setNombreEmpresa(ultimoForm.nombreEmpresa);
+          setCodigoFormulario(ultimoForm.codigo);
+          setFechaFormulario(ultimoForm.fecha);
+          if (ultimoForm.logoEmpresa) setLogoBase64(ultimoForm.logoEmpresa);
 
-        setRequisitos(Array.isArray(requisitosRes.data)
-          ? requisitosRes.data.map(i => ({ value: i.idRequisitoLegalAsociado, label: i.requisitoLegalAsociado }))
-          : []);
+          // 3. Obtener las filas (AHORA YA VIENEN CON TEXTO)
+          const resGrilla = await axiosClient.get(`/api/grilla/formularios/${ultimoForm.idFormulario}/items`);
 
-        setImpactosAmbientales(Array.isArray(impactosRes.data)
-          ? impactosRes.data.map(i => ({ value: i.idImpactoAmbiental, label: i.impactoAmbiental }))
-          : []);
+          const filasListas = resGrilla.data.map(item => ({
+            id: item.idItem,
+            esNuevo: false,
 
-        setCategorias(Array.isArray(categoriasRes.data)
-          ? categoriasRes.data.map(i => ({ value: i.id, label: i.categoriaAspectoAmbiental }))
-          : []);
+            // Datos Directos del Backend (Sin búsquedas raras)
+            sector: item.idSector,
+            sectorNombre: item.sector, // <--- El backend ya manda el nombre aquí
 
-        console.log("Datos cargados exitosamente");
+            actividad: { value: item.idActividad, label: item.actividad },
+            aspecto: { value: item.idAspectoAmbiental, label: item.aspectoAmbiental },
+            impacto: { value: item.idImpactoAmbiental, label: item.impactoAmbiental },
+            tipoImpacto: { value: item.idTipoImpacto, label: item.tipoImpacto },
+            condicion: { value: item.idCondicionImpacto, label: item.condicionImpacto },
+            requisito: { value: item.idRequisitoLegalAsociado, label: item.requisitoLegalAsociado },
 
+            severidad: item.severidad,
+            magnitud: item.magnitud,
+            frecuencia: item.frecuencia,
+            reversibilidad: item.reversibilidad,
+            valoracion: item.valoracion,
+            significancia: item.impactoSignificado,
+            control: item.control,
+            observaciones: item.observaciones
+          }));
+
+          setFilasTabla(filasListas);
+          setTieneCambios(false);
+        }
       } catch (error) {
-        console.error("Error cargando datos iniciales:", error);
+        console.error("Error al cargar:", error);
       } finally {
         setIsLoading(false);
       }
@@ -149,6 +165,7 @@ export default function MatrizAmbientalPage() {
 
     fetchData();
   }, []);
+
 
 
 
@@ -319,24 +336,24 @@ export default function MatrizAmbientalPage() {
       sector: sectorSeleccionado?.value,
       sectorNombre: sectorSeleccionado?.label,
       actividad: {
-        id: actividadSeleccionada?.value,
-        nombre: actividadSeleccionada?.label
+        value: actividadSeleccionada?.value,
+        label: actividadSeleccionada?.label
       },
       aspecto: {
-        id: aspectoSeleccionado?.value,
-        nombre: aspectoSeleccionado?.label,
+        value: aspectoSeleccionado?.value,
+        label: aspectoSeleccionado?.label
       },
       impacto: {
-        id: impactoAmbientalSeleccionado?.value,
-        nombre: impactoAmbientalSeleccionado?.label ?? ''
+        value: impactoAmbientalSeleccionado?.value,
+        label: impactoAmbientalSeleccionado?.label ?? ''
       },
       tipoImpacto: {
-        id: tipoImpactoSeleccionado?.value,
-        nombre: tipoImpactoSeleccionado?.label ?? ''
+        value: tipoImpactoSeleccionado?.value,
+        label: tipoImpactoSeleccionado?.label ?? ''
       },
       condicion: {
-        id: condicionSeleccionada?.value,
-        nombre: condicionSeleccionada?.label ?? ''
+        value: condicionSeleccionada?.value,
+        label: condicionSeleccionada?.label ?? ''
       },
       severidad: valueSeveridad,
       magnitud: valueMagnitud,
@@ -345,8 +362,8 @@ export default function MatrizAmbientalPage() {
       valoracion: valoracionCalculada,
       significancia: significanciaCalculada,
       requisito: {
-        id: requisitoSeleccionado?.value,
-        nombre: requisitoSeleccionado?.label ?? ''
+        value: requisitoSeleccionado?.value,
+        label: requisitoSeleccionado?.label ?? ''
       },
       control: valueControl,
       observaciones: valueObservaciones,
@@ -382,9 +399,7 @@ export default function MatrizAmbientalPage() {
 
 
   // --- Filtrar filas según el sector seleccionado ---
-  const filasFiltradas = filasTabla.filter(
-    (fila) => fila.sector === sectorSeleccionado?.value
-  );
+  const filasFiltradas = filasTabla;
 
 
 
@@ -392,16 +407,117 @@ export default function MatrizAmbientalPage() {
     window.print()
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <Image src="/logo2.png" alt="Cargando..." width={100} height={50} className="mx-auto animate-pulse" />
-          <p className="mt-4 text-gray-600">Cargando datos...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleGuardar = async () => {
+    // Validaciones
+    if (!nombreEmpresa || !codigoFormulario || !fechaFormulario) {
+      alert("Faltan datos de cabecera (Empresa, Código o Fecha).");
+      return;
+    }
+    if (filasTabla.length === 0) {
+      alert("La matriz está vacía. Agregue al menos una fila.");
+      return;
+    }
+
+    setIsGuardando(true);
+    setMensajeGuardado("");
+    setSaveSuccess(false);
+
+    try {
+      // Definimos el payload de la cabecera (se usa tanto para crear como para actualizar)
+      const formPayload = {
+        idSector: sectorSeleccionado ? sectorSeleccionado.value : null,
+        nombreEmpresa: nombreEmpresa,
+        codigo: codigoFormulario,
+        fecha: fechaFormulario,
+        items: [], // Lista vacía por contrato
+        logoEmpresa: logoBase64 || ""
+      };
+
+      let idFinal = idFormularioActual;
+
+
+      if (!idFinal) {
+        // Si NO existe ID en el estado, creamos uno nuevo
+        const resForm = await axiosClient.post('/api/formularios', formPayload);
+        idFinal = resForm.data.idFormulario; // Recuperamos el ID nuevo
+
+        if (!idFinal) throw new Error("El backend no devolvió un ID de formulario.");
+
+        setIdFormularioActual(idFinal); // Actualizamos el estado para la próxima
+      } else {
+        // Si ya existe, asumimos que es ese 
+        console.log("Usando formulario existente ID:", idFinal);
+      }
+
+      // Guardar Filas
+      // Esto se ejecuta siempre, sea nuevo o viejo el formulario
+      const promesasGrilla = filasTabla.map(fila => {
+        const itemPayload = {
+          idSector: fila.sector,
+          idActividad: fila.actividad?.value,
+          idAspectoAmbiental: fila.aspecto?.value,
+          idImpactoAmbiental: fila.impacto?.value,
+          idTipoImpacto: fila.tipoImpacto?.value,
+          idCondicionImpacto: fila.condicion?.value,
+
+          severidad: parseInt(fila.severidad),
+          magnitud: parseInt(fila.magnitud),
+          frecuencia: parseInt(fila.frecuencia),
+          reversibilidad: parseInt(fila.reversibilidad),
+          idRequisitoLegalAsociado: fila.requisito?.value,
+          control: fila.control,
+          observaciones: fila.observaciones
+        };
+
+        return axiosClient.post(`/api/grilla/formularios/${idFinal}/items`, itemPayload);
+      });
+
+      // Guardar Firmas
+      const fechaActual = new Date().toISOString();
+      const firmasPayload = {
+        nombreElabore: firmantes.elaboro.nombre,
+        apellidoElabore: firmantes.elaboro.apellido,
+        puestoElabore: firmantes.elaboro.puesto,
+        firmaElabore: firmantes.elaboro.firma,
+        aclaracionElabore: firmantes.elaboro.aclaracion,
+        fechaElabore: firmantes.elaboro.nombre ? fechaActual : null,
+
+        nombreReviso: firmantes.reviso.nombre,
+        apellidoReviso: firmantes.reviso.apellido,
+        puestoReviso: firmantes.reviso.puesto,
+        firmaReviso: firmantes.reviso.firma,
+        aclaracionReviso: firmantes.reviso.aclaracion,
+        fechaReviso: firmantes.reviso.nombre ? fechaActual : null,
+
+        nombreAprobo: firmantes.aprobo.nombre,
+        apellidoAprobo: firmantes.aprobo.apellido,
+        puestoAprobo: firmantes.aprobo.puesto,
+        firmaAprobo: firmantes.aprobo.firma,
+        aclaracionAprobo: firmantes.aprobo.aclaracion,
+        fechaAprobo: firmantes.aprobo.nombre ? fechaActual : null
+      };
+
+      const promesaFirmas = axiosClient.post(`/api/firmas/formularios/${idFinal}`, firmasPayload);
+
+      // Ejecutar todo en paralelo
+      await Promise.all([...promesasGrilla, promesaFirmas]);
+
+      setSaveSuccess(true);
+      setMensajeGuardado("Matriz y firmas guardadas correctamente.");
+      setTieneCambios(false);
+
+    } catch (error) {
+      console.error("Error al guardar:", error);
+      const errorMsg = error.response?.data?.message || error.message || "Error desconocido";
+      setMensajeGuardado("Error: " + errorMsg);
+    } finally {
+      setIsGuardando(false);
+      setTimeout(() => {
+        setSaveSuccess(false);
+        setMensajeGuardado("");
+      }, 3000);
+    }
+  };
 
 
   return (
@@ -1019,11 +1135,11 @@ export default function MatrizAmbientalPage() {
                     filasFiltradas.map((fila, index) => (
                       <tr key={fila.id}>
                         <td>{index + 1}</td>
-                        <td>{fila.actividad.nombre}</td>
-                        <td>{fila.aspecto.nombre}</td>
-                        <td>{fila.impacto.nombre}</td>
-                        <td>{fila.tipoImpacto.nombre}</td>
-                        <td>{fila.condicion.nombre}</td>
+                        <td>{fila.actividad.label}</td>
+                        <td>{fila.aspecto.label}</td>
+                        <td>{fila.impacto.label}</td>
+                        <td>{fila.tipoImpacto.label}</td>
+                        <td>{fila.condicion.label}</td>
                         <td>{fila.severidad}</td>
                         <td>{fila.magnitud}</td>
                         <td>{fila.frecuencia}</td>
@@ -1032,7 +1148,7 @@ export default function MatrizAmbientalPage() {
                         <td>
                           <span className={styles.resultadoBadge}>{fila.significancia}</span>
                         </td>
-                        <td>{fila.requisito.nombre}</td>
+                        <td>{fila.requisito.label}</td>
                         <td>{fila.control}</td>
                         <td>{fila.observaciones}</td>
                         <td>
@@ -1232,7 +1348,7 @@ export default function MatrizAmbientalPage() {
               <Printer size={20} />
               Imprimir Matriz
             </button>
-            <button className={styles.saveButton} disabled={isGuardando}>
+            <button className={styles.saveButton} disabled={isGuardando} onClick={handleGuardar}>
               {isGuardando ? (
                 "Guardando..."
               ) : (
