@@ -58,8 +58,9 @@ export default function IndicadoresPage() {
 
     const fetchIndicadores = async () => {
         try {
-            const res = await axios.get("/api/indicadores-ambientales");
+            const res = await axios.get("/api/indicadores-ambientales/listar");
             setIndicadores(res.data);
+            console.log("Respuesta" + res.data)
         } catch (error) {
             console.error("Error al cargar indicadores:", error);
         }
@@ -68,7 +69,7 @@ export default function IndicadoresPage() {
     const onSubmit = async (data) => {
         setLoading(true);
         try {
-            await axios.post("/api/indicadores-ambientales", data);
+            await axios.post("/api/indicadores-ambientales/crear", data);
             alert("Indicador registrado correctamente");
             reset(); // Limpiar formulario
             fetchIndicadores(); // Actualizar tabla

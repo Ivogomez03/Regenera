@@ -36,9 +36,10 @@ public class CurrentUserService {
     }
 
     public Long getCurrentUserId() {
-        String username = getUsername();
+        String emailUsuario = getUsername();
 
-        return usuarioRepository.findByNombreUsuario(username)
+
+        return usuarioRepository.findByEmail(emailUsuario)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Usuario no encontrado"))

@@ -28,7 +28,7 @@ public class IndicadorAmbientalController {
         this.currentUserService = currentUserService;
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<IndicadorAmbientalModel>> listar() {
         return ResponseEntity.ok(indicadorService.listar());
     }
@@ -38,9 +38,10 @@ public class IndicadorAmbientalController {
         return ResponseEntity.ok(indicadorService.listarPorObjetivo(objetivo));
     }
 
-    @PostMapping
+    @PostMapping("/crear")
     public ResponseEntity<IndicadorAmbientalModel> crear(@RequestBody @Valid IndicadorAmbientalCreateRequest req) {
         Long idUsuario = currentUserService.getCurrentUserId();
+        System.out.println("DEBUG: Intentando crear indicador con ID Usuario: " + idUsuario);
         return ResponseEntity.ok(indicadorService.crear(req, idUsuario));
     }
 }

@@ -9,7 +9,6 @@ const indicadoresSchema = yup.object().shape({
         .required("El valor es obligatorio"),
     fechaLineaBase: yup.date().required("La fecha de línea base es obligatoria"),
     fechaRegistro: yup.date().required("La fecha de registro es obligatoria"),
-    metodoCalculo: yup.string().required("El método de cálculo es obligatorio"),
     fuenteDato: yup.string().required("La fuente del dato es obligatoria"),
     observaciones: yup.string().nullable(),
 

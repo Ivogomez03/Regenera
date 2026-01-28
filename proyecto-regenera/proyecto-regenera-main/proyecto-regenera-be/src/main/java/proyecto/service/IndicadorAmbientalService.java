@@ -38,6 +38,7 @@ public class IndicadorAmbientalService {
 
     @Transactional
     public IndicadorAmbientalModel crear(IndicadorAmbientalCreateRequest req, Long idUsuario) {
+        System.out.println("El id del usuario es: " + usuarioRepo.findById(idUsuario));
         var usuario = usuarioRepo.findById(idUsuario)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
