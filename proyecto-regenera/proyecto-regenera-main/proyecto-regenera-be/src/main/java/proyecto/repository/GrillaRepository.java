@@ -11,26 +11,13 @@ import java.util.List;
 @Repository
 public interface GrillaRepository extends JpaRepository<GrillaModel, Long> {
 
-    java.util.List<GrillaModel> findByFormulario_IdFormulario(Long idFormulario);
+       @Query("SELECT DISTINCT g.sector.idSector FROM GrillaModel g WHERE g.formulario.usuario.email = :email")
+       List<Long> findDistinctSectoresByUsuarioEmail(String email);
 
-    List<GrillaModel> findByFormulario_IdFormularioAndIdSector(Long idFormulario, Long idSector);
+       @Query("SELECT DISTINCT g.sector.idSector FROM GrillaModel g WHERE g.formulario.idFormulario = :idFormulario AND g.formulario.usuario.email = :email")
+       List<Long> findDistinctSectoresByFormularioAndEmail(Long idFormulario, String email);
 
-    @Query("""
-           select distinct g.idSector
-           from GrillaModel g
-           where g.formulario.usuario.email = :email
-           order by g.idSector
-           """)
-    List<Long> findDistinctSectoresByUsuarioEmail(@Param("email") String email);
+       List<GrillaModel> findByFormulario_IdFormulario(Long idFormulario);
 
-    @Query("""
-           select distinct g.idSector
-           from GrillaModel g
-           where g.formulario.idFormulario = :idFormulario
-             and g.formulario.usuario.email = :email
-           order by g.idSector
-           """)
-    List<Long> findDistinctSectoresByFormularioAndEmail(@Param("idFormulario") Long idFormulario,
-                                                        @Param("email") String email);
-
+       List<GrillaModel> findByFormulario_IdFormularioAndSector_IdSector(Long idFormulario, Long idSector);
 }

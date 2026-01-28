@@ -14,6 +14,8 @@ public interface UsuarioRepository extends JpaRepository<UsuarioModel, Long> {
 
     boolean existsByEmail(String email);
 
-    boolean existsByNombreUsuario(@NotBlank @Size(min = 4, max = 30) @Pattern(regexp = "^[a-zA-Z0-9._-]+$", message = "Solo letras, números, . _ -") String nombreUsuario);
+    boolean existsByNombreUsuario(
+            @NotBlank @Size(min = 4, max = 30) @Pattern(regexp = "^[a-zA-Z0-9._-]+$", message = "Solo letras, números, . _ -") String nombreUsuario);
 
+    Optional<UsuarioModel> findByNombreUsuario(String nombreUsuario);
 }

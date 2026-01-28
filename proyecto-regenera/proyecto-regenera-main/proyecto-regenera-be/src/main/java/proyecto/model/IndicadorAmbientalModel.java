@@ -6,6 +6,8 @@ import proyecto.enums.TipoIndicadorEnum;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "indicador_ambiental", schema = "ga")
 @Getter
@@ -19,6 +21,11 @@ public class IndicadorAmbientalModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_indicador")
     private Integer idIndicador;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario")
+    private UsuarioModel usuario;
 
     // Datos de la Medición
 

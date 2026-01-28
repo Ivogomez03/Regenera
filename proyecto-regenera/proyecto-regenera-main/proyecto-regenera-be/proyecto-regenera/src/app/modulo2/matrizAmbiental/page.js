@@ -112,51 +112,9 @@ export default function MatrizAmbientalPage() {
 
         console.log("Opciones cargadas. Recuperando datos del usuario...");
 
-        // 2. RECUPERAR DATOS GUARDADOS
-        const resFormularios = await axiosClient.get('/api/formularios');
-
-        if (resFormularios.data && resFormularios.data.length > 0) {
-          const ultimoForm = resFormularios.data[resFormularios.data.length - 1];
-
-          // Restaurar Cabecera
-          setIdFormularioActual(ultimoForm.idFormulario);
-          setNombreEmpresa(ultimoForm.nombreEmpresa);
-          setCodigoFormulario(ultimoForm.codigo);
-          setFechaFormulario(ultimoForm.fecha);
-          if (ultimoForm.logoEmpresa) setLogoBase64(ultimoForm.logoEmpresa);
-
-          // 3. Obtener las filas (AHORA YA VIENEN CON TEXTO)
-          const resGrilla = await axiosClient.get(`/api/grilla/formularios/${ultimoForm.idFormulario}/items`);
-
-          const filasListas = resGrilla.data.map(item => ({
-            id: item.idItem,
-            esNuevo: false,
-
-            // Datos Directos del Backend (Sin búsquedas raras)
-            sector: item.idSector,
-            sectorNombre: item.sector, // <--- El backend ya manda el nombre aquí
-
-            actividad: { value: item.idActividad, label: item.actividad },
-            aspecto: { value: item.idAspectoAmbiental, label: item.aspectoAmbiental },
-            impacto: { value: item.idImpactoAmbiental, label: item.impactoAmbiental },
-            tipoImpacto: { value: item.idTipoImpacto, label: item.tipoImpacto },
-            condicion: { value: item.idCondicionImpacto, label: item.condicionImpacto },
-            requisito: { value: item.idRequisitoLegalAsociado, label: item.requisitoLegalAsociado },
-
-            severidad: item.severidad,
-            magnitud: item.magnitud,
-            frecuencia: item.frecuencia,
-            reversibilidad: item.reversibilidad,
-            valoracion: item.valoracion,
-            significancia: item.impactoSignificado,
-            control: item.control,
-            observaciones: item.observaciones
-          }));
-
-          setFilasTabla(filasListas);
-          setTieneCambios(false);
-        }
-      } catch (error) {
+        setTieneCambios(false);
+      }
+      catch (error) {
         console.error("Error al cargar:", error);
       } finally {
         setIsLoading(false);
@@ -389,7 +347,7 @@ export default function MatrizAmbientalPage() {
     setValueObservaciones('');
   };
 
-  // --- Eliminar fila ---
+  // Eliminar fila
   const handleEliminarFila = (id) => {
     if (confirm("¿Estás seguro de eliminar esta fila?")) {
       setFilasTabla(prev => prev.filter(fila => fila.id !== id));
@@ -398,7 +356,7 @@ export default function MatrizAmbientalPage() {
   };
 
 
-  // --- Filtrar filas según el sector seleccionado ---
+  // Filas
   const filasFiltradas = filasTabla;
 
 
@@ -552,7 +510,13 @@ export default function MatrizAmbientalPage() {
               <div className={styles.logoUploadArea}>
                 <label htmlFor="logoUpload" className={styles.logoUploadLabel}>
                   {logoPreview ? (
-                    <img src={logoPreview || "/placeholder.svg"} alt="Logo empresa" className={styles.uploadedLogo} />
+
+                    <img
+                      src={logoPreview}
+                      alt="Logo empresa"
+                      className={styles.uploadedLogo}
+
+                    />
                   ) : (
                     <div className={styles.logoPlaceholder}>
                       <Building2 size={48} />

@@ -1,9 +1,14 @@
 package proyecto.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import proyecto.dto.IndicadorAmbientalDto;
 import proyecto.model.IndicadorAmbientalModel;
 import proyecto.repository.IndicadorAmbientalRepository;
+import proyecto.repository.UsuarioRepository;
 import proyecto.request_response.IndicadorAmbientalCreateRequest;
 
 import java.util.List;
@@ -12,9 +17,11 @@ import java.util.List;
 public class IndicadorAmbientalService {
 
     private final IndicadorAmbientalRepository indicadorRepository;
+    private final UsuarioRepository usuarioRepo;
 
-    public IndicadorAmbientalService(IndicadorAmbientalRepository indicadorRepository) {
+    public IndicadorAmbientalService(IndicadorAmbientalRepository indicadorRepository, UsuarioRepository usuarioRepo) {
         this.indicadorRepository = indicadorRepository;
+        this.usuarioRepo = usuarioRepo;
     }
 
     // Listar todos (para reportes generales)
@@ -30,11 +37,16 @@ public class IndicadorAmbientalService {
     }
 
     @Transactional
-    public IndicadorAmbientalModel crear(IndicadorAmbientalCreateRequest req) {
+    public IndicadorAmbientalModel crear(IndicadorAmbientalCreateRequest req, Long idUsuario) {
+        var usuario = usuarioRepo.findById(idUsuario)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Usuario no encontrado"));
         // Mapeo manual del DTO a la Entidad
         IndicadorAmbientalModel indicador = IndicadorAmbientalModel.builder()
                 // Datos de medición
                 .tipoIndicador(req.getTipoIndicador())
+                .usuario(usuario)
                 .valorMedido(req.getValorMedido())
                 .fechaLineaBase(req.getFechaLineaBase())
                 .fechaRegistro(req.getFechaRegistro())
@@ -53,5 +65,33 @@ public class IndicadorAmbientalService {
                 .build();
 
         return indicadorRepository.save(indicador);
+    }
+
+    @Transactional(readOnly = true)
+    public List<IndicadorAmbientalDto> listarPorUsuario(Long idUsuario) {
+        List<IndicadorAmbientalDto> dtos = convertirModelADtos(indicadorRepository.findByUsuario_Id(idUsuario));
+        return dtos;
+    }
+
+    public List<IndicadorAmbientalDto> convertirModelADtos(List<IndicadorAmbientalModel> modelos) {
+        return modelos.stream().map(model -> {
+            IndicadorAmbientalDto dto = new IndicadorAmbientalDto();
+            dto.setIdIndicador(model.getIdIndicador());
+            dto.setTipoIndicador(model.getTipoIndicador().name());
+            dto.setValorMedido(model.getValorMedido());
+            dto.setFechaLineaBase(model.getFechaLineaBase() != null ? model.getFechaLineaBase().toString() : null);
+            dto.setFechaRegistro(model.getFechaRegistro() != null ? model.getFechaRegistro().toString() : null);
+            dto.setFuenteDato(model.getFuenteDato());
+            dto.setObservaciones(model.getObservaciones());
+            dto.setRespCargaNombre(model.getRespCargaNombre());
+            dto.setRespCargaApellido(model.getRespCargaApellido());
+            dto.setRespCargaCargo(model.getRespCargaCargo());
+            dto.setRespCargaSector(model.getRespCargaSector());
+            dto.setObjetivo(model.getObjetivo());
+            dto.setMetaValor(model.getMetaValor());
+            dto.setMetaUnidad(model.getMetaUnidad());
+            dto.setResponsableCumplimiento(model.getResponsableCumplimiento());
+            return dto;
+        }).toList();
     }
 }

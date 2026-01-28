@@ -5,7 +5,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import proyecto.model.IndicadorAmbientalModel;
+import proyecto.repository.UsuarioRepository;
 import proyecto.request_response.IndicadorAmbientalCreateRequest;
+import proyecto.service.CurrentUserService;
 import proyecto.service.IndicadorAmbientalService;
 
 import java.util.List;
@@ -16,9 +18,14 @@ import java.util.List;
 public class IndicadorAmbientalController {
 
     private final IndicadorAmbientalService indicadorService;
+    private final CurrentUserService currentUserService;
+    private final UsuarioRepository usuarioRepo;
 
-    public IndicadorAmbientalController(IndicadorAmbientalService indicadorService) {
+    public IndicadorAmbientalController(IndicadorAmbientalService indicadorService,
+            CurrentUserService currentUserService, UsuarioRepository usuarioRepo) {
         this.indicadorService = indicadorService;
+        this.usuarioRepo = usuarioRepo;
+        this.currentUserService = currentUserService;
     }
 
     @GetMapping
@@ -26,7 +33,6 @@ public class IndicadorAmbientalController {
         return ResponseEntity.ok(indicadorService.listar());
     }
 
-    // Endpoint útil para filtrar en el frontend por objetivo específico
     @GetMapping("/buscar")
     public ResponseEntity<List<IndicadorAmbientalModel>> buscarPorObjetivo(@RequestParam String objetivo) {
         return ResponseEntity.ok(indicadorService.listarPorObjetivo(objetivo));
@@ -34,6 +40,7 @@ public class IndicadorAmbientalController {
 
     @PostMapping
     public ResponseEntity<IndicadorAmbientalModel> crear(@RequestBody @Valid IndicadorAmbientalCreateRequest req) {
-        return ResponseEntity.ok(indicadorService.crear(req));
+        Long idUsuario = currentUserService.getCurrentUserId();
+        return ResponseEntity.ok(indicadorService.crear(req, idUsuario));
     }
 }

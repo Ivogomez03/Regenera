@@ -225,7 +225,7 @@ public class FormularioService {
     public List<GrillaModel> listarItems(Long idFormulario, String email, Long sector) {
         mustBeMine(idFormulario, email);
         if (sector != null) {
-            return grillaRepo.findByFormulario_IdFormularioAndIdSector(idFormulario, sector);
+            return grillaRepo.findByFormulario_IdFormularioAndSector_IdSector(idFormulario, sector);
         }
         return grillaRepo.findByFormulario_IdFormulario(idFormulario);
     }
