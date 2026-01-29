@@ -17,7 +17,8 @@ export default function MatrizLegalPage() {
     idTipo: "",
     nro: "",
     anio: "",
-    idAspectoAmbiental: "",
+    resena: "",
+    idAspectoAmbientalTema: "",
     obligacion: "",
     puntoControl: "",
     idResultado: "",
@@ -31,7 +32,7 @@ export default function MatrizLegalPage() {
     const fetchMatriz = async () => {
       try {
         const response = await axiosClient.get("/api/matriz-legal")
-        
+
         if (Array.isArray(response.data)) {
           const filasDeBD = response.data.map(f => ({ ...f, esNuevo: false }))
           setFilas(response.data)
@@ -53,7 +54,7 @@ export default function MatrizLegalPage() {
         const [ambitosRes, tiposRes, aspectosRes, resultadosRes] = await Promise.all([
           axiosClient.get("/api/ambitos"),
           axiosClient.get("/api/tipos"),
-          axiosClient.get("/api/aspectos-ambientales"),
+          axiosClient.get("/api/aspectos-ambientales-temas"),
           axiosClient.get("/api/resultados"),
         ])
 
@@ -82,7 +83,7 @@ export default function MatrizLegalPage() {
       !form.idTipo ||
       !form.nro ||
       !form.anio ||
-      !form.idAspectoAmbiental ||
+      !form.idAspectoAmbientalTema ||
       !form.obligacion ||
       !form.puntoControl ||
       !form.idResultado
@@ -92,50 +93,50 @@ export default function MatrizLegalPage() {
     }
     try {
 
-    const ambitoObj = ambitos.find((a) => a.idAmbito == form.idAmbito)
-    const tipoObj = tipos.find((t) => t.idTipo == form.idTipo)
-    const aspectoObj = aspectos.find((a) => a.idAspectoAmbiental == form.idAspectoAmbiental)
-    const resultadoObj = resultados.find((r) => r.idResultado == form.idResultado)
+      const ambitoObj = ambitos.find((a) => a.idAmbito == form.idAmbito)
+      const tipoObj = tipos.find((t) => t.idTipo == form.idTipo)
+      const aspectoObj = aspectos.find((a) => a.idAspectoAmbientalTema == form.idAspectoAmbientalTema)
+      const resultadoObj = resultados.find((r) => r.idResultado == form.idResultado)
 
-    const nuevaFila = {
-      id: Date.now(), 
-      esNuevo: true,
-      idAmbito: form.idAmbito,
-      idTipo: form.idTipo,
-      idAspectoAmbiental: form.idAspectoAmbiental,
-      idResultado: form.idResultado,
+      const nuevaFila = {
+        id: Date.now(),
+        esNuevo: true,
+        idAmbito: form.idAmbito,
+        idTipo: form.idTipo,
+        idAspectoAmbientalTema: form.idAspectoAmbientalTema,
+        idResultado: form.idResultado,
 
-      ambito: ambitoObj ? ambitoObj.ambito : "",
-      tipo: tipoObj ? tipoObj.tipo : "",
-      aspecto: aspectoObj ? aspectoObj.aspectoAmbiental : "", 
-      resultado: resultadoObj ? resultadoObj.resultado : "",
-      
-      numero: form.nro,              
-      anio: form.anio,
-      obligacion: form.obligacion,
-      puntoInspeccion: form.puntoControl 
+        ambito: ambitoObj ? ambitoObj.ambito : "",
+        tipo: tipoObj ? tipoObj.tipo : "",
+        aspecto: aspectoObj ? aspectoObj.aspectoAmbiental : "",
+        resultado: resultadoObj ? resultadoObj.resultado : "",
+
+        numero: form.nro,
+        anio: form.anio,
+        obligacion: form.obligacion,
+        puntoInspeccion: form.puntoControl
+      }
+
+      const newFilas = [...filas, nuevaFila]
+      setFilas(newFilas)
+
+      setForm({
+        idAmbito: "",
+        idTipo: "",
+        nro: "",
+        anio: "",
+        idAspectoAmbientalTema: "",
+        obligacion: "",
+        puntoControl: "",
+        idResultado: "",
+      })
+
+      setSaveMessage("¡Fila agregada exitosamente!")
+      setTimeout(() => setSaveMessage(""), 3000)
+    } catch (error) {
+      console.error("Error saving row:", error)
+      alert("Error al guardar la fila.")
     }
-
-    const newFilas = [...filas, nuevaFila]
-    setFilas(newFilas)
-
-    setForm({
-      idAmbito: "",
-      idTipo: "",
-      nro: "",
-      anio: "",
-      idAspectoAmbiental: "",
-      obligacion: "",
-      puntoControl: "",
-      idResultado: "",
-    })
-
-    setSaveMessage("¡Fila agregada exitosamente!")
-    setTimeout(() => setSaveMessage(""), 3000)
-  } catch (error) {
-    console.error("Error saving row:", error)
-    alert("Error al guardar la fila.")
-  }
   }
 
   const eliminarFila = async (id) => {
@@ -155,47 +156,47 @@ export default function MatrizLegalPage() {
   }
 
   const guardarFilas = async () => {
-      const filasNuevas = filas.filter((fila) => fila.esNuevo === true)
+    const filasNuevas = filas.filter((fila) => fila.esNuevo === true)
 
-      if (filasNuevas.length === 0) {
-        alert("No hay filas NUEVAS para guardar. Las existentes ya están guardadas.")
-        return
+    if (filasNuevas.length === 0) {
+      alert("No hay filas NUEVAS para guardar. Las existentes ya están guardadas.")
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const datosParaEnviar = filasNuevas.map((fila) => ({
+        idAmbito: parseInt(fila.idAmbito, 10),
+        idTipo: parseInt(fila.idTipo, 10),
+        idAspectoAmbientalTema: parseInt(fila.idAspectoAmbientalTema, 10),
+        idResultado: parseInt(fila.idResultado, 10),
+        numero: String(fila.numero),
+        anio: parseInt(fila.anio, 10),
+        obligacion: String(fila.obligacion),
+        puntoInspeccion: String(fila.puntoInspeccion),
+        resena: ""
+      }))
+
+      await axiosClient.post("/api/matriz-legal", datosParaEnviar)
+
+      setSaveMessage("¡Nuevas filas guardadas exitosamente!")
+      setTimeout(() => setSaveMessage(""), 3000)
+
+      const res = await axiosClient.get("/api/matriz-legal");
+      const filasActualizadas = res.data.map(f => ({ ...f, esNuevo: false }));
+      setFilas(filasActualizadas);
+
+    } catch (error) {
+      console.error("Error saving data:", error)
+      if (error.response?.data?.message) {
+        alert(`Error del servidor: ${error.response.data.message}`)
+      } else {
+        alert("Error al guardar.")
       }
-
-      setIsLoading(true)
-
-      try {
-        const datosParaEnviar = filasNuevas.map((fila) => ({
-          idAmbito: parseInt(fila.idAmbito, 10),
-          idTipo: parseInt(fila.idTipo, 10),
-          idAspectoAmbiental: parseInt(fila.idAspectoAmbiental, 10),
-          idResultado: parseInt(fila.idResultado, 10),
-          numero: String(fila.numero),
-          anio: parseInt(fila.anio, 10),
-          obligacion: String(fila.obligacion),
-          puntoInspeccion: String(fila.puntoInspeccion),
-          resena: ""
-        }))
-
-        await axiosClient.post("/api/matriz-legal", datosParaEnviar)
-
-        setSaveMessage("¡Nuevas filas guardadas exitosamente!")
-        setTimeout(() => setSaveMessage(""), 3000)
-        
-        const res = await axiosClient.get("/api/matriz-legal");
-        const filasActualizadas = res.data.map(f => ({ ...f, esNuevo: false }));
-        setFilas(filasActualizadas);
-
-      } catch (error) {
-        console.error("Error saving data:", error)
-        if (error.response?.data?.message) {
-          alert(`Error del servidor: ${error.response.data.message}`)
-        } else {
-          alert("Error al guardar.")
-        }
-      } finally {
-        setIsLoading(false)
-      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handlePrint = () => {
@@ -215,7 +216,7 @@ export default function MatrizLegalPage() {
     <main className={styles.main}>
       <header className={styles.topHeader}>
         <Link href="/">
-           <Image src="/logo2.png" alt="Regenera Logo" width={140} height={60} className={styles.logo} priority />
+          <Image src="/logo2.png" alt="Regenera Logo" width={140} height={60} className={styles.logo} priority />
         </Link>
       </header>
 
@@ -278,12 +279,25 @@ export default function MatrizLegalPage() {
 
               <div className={styles.formGroup}>
                 <label>Aspecto Ambiental</label>
-                <select name="idAspectoAmbiental" value={form.idAspectoAmbiental} onChange={handleChange}>
+                <select name="idAspectoAmbientalTema" value={form.idAspectoAmbientalTema} onChange={handleChange}>
                   <option value="">Seleccione...</option>
                   {Array.isArray(aspectos) &&
                     aspectos.map((a) => (
-                      <option key={a.idAspectoAmbiental} value={a.idAspectoAmbiental}>
-                        {a.aspectoAmbiental}
+                      <option key={a.idAspectoAmbientalTema} value={a.idAspectoAmbientalTema}>
+                        {a.aspectoAmbientalTema}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Reseña</label>
+                <select name="resena" value={form.resena} onChange={handleChange}>
+                  <option value="">Seleccione...</option>
+                  {Array.isArray(aspectos) &&
+                    aspectos.map((a) => (
+                      <option key={a.idAspectoAmbientalTema} value={a.idAspectoAmbientalTema}>
+                        {a.aspectoAmbientalTema}
                       </option>
                     ))}
                 </select>
@@ -417,9 +431,9 @@ export default function MatrizLegalPage() {
           {filas.length > 0 && (
             <div className={styles.actionBar}>
               <button className={styles.printButton} onClick={handlePrint}>
-              <Printer size={20} />
-              Imprimir Matriz
-            </button>
+                <Printer size={20} />
+                Imprimir Matriz
+              </button>
               <button className={styles.saveButton} onClick={guardarFilas}>
                 <Save size={20} />
                 Guardar Matriz

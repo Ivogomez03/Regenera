@@ -29,8 +29,8 @@ public class RequisitoLegalModel {
     private ResultadoModel resultado;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_aspecto_ambiental", nullable = false) // nombre de la columna real en la tabla
-    private AspectoAmbientalModel aspecto;
+    @JoinColumn(name = "id_aspecto_ambiental_tema", nullable = false) // nombre de la columna real en la tabla
+    private AspectoAmbientalTemaModel aspecto;
 
     @Column(name = "numero", nullable = false)
     private String numero;

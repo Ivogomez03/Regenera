@@ -13,7 +13,6 @@ import proyecto.repository.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Service
 public class RequisitoLegalService {
 
@@ -22,20 +21,21 @@ public class RequisitoLegalService {
     private final AmbitoRepository ambitoRepo;
     private final TipoRepository tipoRepo;
     private final ResultadoRepository resultadoRepo;
-    private final AspectoAmbientalRepository aspectoRepo;
+    private final AspectoAmbientalTemaRepository aspectoTemaRepo;
 
     public RequisitoLegalService(RequisitoLegalRepository requisitoLegalRepo,
-                                 UsuarioRepository usuarioRepo,
-                                 AmbitoRepository ambitoRepo,
-                                 TipoRepository tipoRepo,
-                                 ResultadoRepository resultadoRepo,
-                                 AspectoAmbientalRepository aspectoRepo) {
+            UsuarioRepository usuarioRepo,
+            AmbitoRepository ambitoRepo,
+            TipoRepository tipoRepo,
+            ResultadoRepository resultadoRepo,
+            AspectoAmbientalTemaRepository aspectoTemaRepo) {
         this.requisitoLegalRepo = requisitoLegalRepo;
         this.usuarioRepo = usuarioRepo;
         this.ambitoRepo = ambitoRepo;
         this.tipoRepo = tipoRepo;
         this.resultadoRepo = resultadoRepo;
-        this.aspectoRepo = aspectoRepo;
+        this.aspectoTemaRepo = aspectoTemaRepo;
+
     }
 
     public RequisitoLegalModel mustBeMine(Long idRequisitoLegal, String email) {
@@ -49,8 +49,7 @@ public class RequisitoLegalService {
         var usuario = usuarioRepo.findById(idUsuario)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Usuario no encontrado"
-                ));
+                        "Usuario no encontrado"));
 
         List<RequisitoLegalResponse> respuestas = new ArrayList<>();
 
@@ -59,28 +58,24 @@ public class RequisitoLegalService {
             var ambito = ambitoRepo.findById(req.getIdAmbito())
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND,
-                            "Ãmbito no encontrado"
-                    ));
+                            "Ãmbito no encontrado"));
 
             var tipo = tipoRepo.findById(req.getIdTipo())
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND,
-                            "Tipo no encontrado"
-                    ));
+                            "Tipo no encontrado"));
 
-            var aspecto = aspectoRepo.findById(Math.toIntExact(req.getIdAspectoAmbiental()))
+            var aspecto = aspectoTemaRepo.findById(Math.toIntExact(req.getIdAspectoAmbiental()))
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND,
-                            "Aspecto ambiental no encontrado"
-                    ));
+                            "Aspecto ambiental no encontrado"));
 
             ResultadoModel resultado = null;
             if (req.getIdResultado() != null) {
                 resultado = resultadoRepo.findById(req.getIdResultado())
                         .orElseThrow(() -> new ResponseStatusException(
                                 HttpStatus.NOT_FOUND,
-                                "Resultado no encontrado"
-                        ));
+                                "Resultado no encontrado"));
             }
 
             var requisitoLegal = new RequisitoLegalModel();
@@ -119,7 +114,7 @@ public class RequisitoLegalService {
         }
 
         if (req.getIdAspectoAmbiental() != null) {
-            var aspecto = aspectoRepo.findById(Math.toIntExact(req.getIdAspectoAmbiental()))
+            var aspecto = aspectoTemaRepo.findById(Math.toIntExact(req.getIdAspectoAmbiental()))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aspecto no encontrado"));
             db.setAspecto(aspecto);
         }
@@ -179,18 +174,17 @@ public class RequisitoLegalService {
                 model.getTipo().getTipo(),
                 model.getResultado() != null ? model.getResultado().getIdResultado() : null,
                 model.getResultado() != null ? model.getResultado().getResultado() : null,
-                model.getAspecto().getIdAspectoAmbiental(),
-                model.getAspecto().getAspectoAmbiental(),
+                model.getAspecto().getIdAspectoAmbientalTema(),
+                model.getAspecto().getAspectoAmbientalTema(),
                 model.getNumero(),
                 model.getAnio(),
                 model.getResena(),
                 model.getObligacion(),
-                model.getPuntoInspeccion()
-        );
+                model.getPuntoInspeccion());
     }
+
     public List<Integer> obtenerAnios() {
 
         return requisitoLegalRepo.findDistinctAniosDesc();
     }
 }
-

@@ -38,13 +38,12 @@ public record RequisitoLegalDto(
                 model.getAmbito().getAmbito(),
                 model.getTipo().getTipo(),
                 model.getResultado() != null ? model.getResultado().getResultado() : null,
-                model.getAspecto().getAspectoAmbiental(),
+                model.getAspecto().getAspectoAmbientalTema(),
                 model.getNumero(),
                 model.getAnio(),
                 model.getResena(),
                 model.getObligacion(),
-                model.getPuntoInspeccion()
-        );
+                model.getPuntoInspeccion());
     }
 
 }
