@@ -1,0 +1,98 @@
+.main {
+    min-height: 100vh;
+    background-color: #f8fafc;
+    padding-bottom: 2rem;
+}
+
+.topHeader {
+    background: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.pageHeader h1 {
+    color: #1e293b;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.tableWrapper {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    background: #f1f5f9;
+    text-align: left;
+    padding: 1rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+}
+
+.typeBadge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.viewButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background-color: #e0f2fe;
+    color: #0284c7;
+    transition: all 0.2s;
+}
+
+.viewButton:hover {
+    background-color: #0284c7;
+    color: white;
+}
+
+.filterBar {
+    margin-bottom: 1rem;
+}
+
+.searchContainer {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    width: 100%;
+    max-width: 400px;
+}
+
+.searchInput {
+    border: none;
+    outline: none;
+    margin-left: 0.5rem;
+    width: 100%;
+    font-size: 0.95rem;
+}

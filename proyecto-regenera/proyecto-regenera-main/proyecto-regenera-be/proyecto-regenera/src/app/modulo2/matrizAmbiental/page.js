@@ -9,9 +9,13 @@ import { FileText, Plus, Save, Check, Trash2, Building2, Calendar, Info, Printer
 import Select from "react-select";
 import "./matrizAmbiental.css";
 import axiosClient from "@/app/lib/axiosClient"
+import { useSearchParams } from 'next/navigation'
 
 
 export default function MatrizAmbientalPage() {
+  const searchParams = useSearchParams()
+  const formularioId = searchParams.get('id');
+
   const [logoPreview, setLogoPreview] = useState(null);
   const [logoBase64, setLogoBase64] = useState("");
 
@@ -24,6 +28,7 @@ export default function MatrizAmbientalPage() {
   const [requisitos, setRequisitos] = useState([]);
   const [impactosAmbientales, setImpactosAmbientales] = useState([]);
   const [categorias, setCategorias] = useState([]);
+  const [resumidos, setResumidos] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
@@ -82,7 +87,34 @@ export default function MatrizAmbientalPage() {
     setIsClient(true);
   }, []);
 
+  useEffect(() => {
+    if (formularioId) {
+      const cargarFormularioExistente = async () => {
+        setIsLoading(true)
+        try {
+          const res = await axiosClient.get(`/api/formularios/${formularioId}`)
+          const data = res.data
 
+          // Cargar cabecera
+          setNombreEmpresa(data.nombreEmpresa)
+          setCodigoFormulario(data.codigo)
+          setFechaFormulario(data.fecha)
+          setIdFormularioActual(data.idFormulario)
+
+          // TODO: Cargar items de la grilla (necesitas endpoint que devuelva items)
+          // const resItems = await axiosClient.get(`/api/grilla/formularios/${formularioId}/items`)
+          // setFilasTabla(mapearItemsAFilas(resItems.data)) 
+
+          console.log("Formulario cargado:", data)
+        } catch (error) {
+          console.error("Error cargando formulario", error)
+        } finally {
+          setIsLoading(false)
+        }
+      }
+      cargarFormularioExistente()
+    }
+  }, [formularioId])
   // CARGA INICIAL DE DATOS
   useEffect(() => {
     const fetchData = async () => {
@@ -107,7 +139,7 @@ export default function MatrizAmbientalPage() {
         setTipoImpactos(tiposRes.data.map(i => ({ value: i.idTipoImpacto, label: i.tipoImpacto })));
         setCondiciones(condicionesRes.data.map(i => ({ value: i.idCondicionImpacto, label: i.condicionImpacto })));
         setRequisitos(requisitosRes.data.map(i => ({ value: i.idRequisitoLegalAsociado, label: i.requisitoLegalAsociado })));
-        setImpactosAmbientales(impactosRes.data.map(i => ({ value: i.idImpactoAmbiental, label: i.impactoAmbiental })));
+        setImpactosAmbientales(impactosRes.data.map(i => ({ value: i.idImpactoAmbiental, label: i.resumido ? i.resumido : i.impactoAmbiental })));
         setCategorias(categoriasRes.data.map(i => ({ value: i.id, label: i.categoriaAspectoAmbiental })));
 
         console.log("Opciones cargadas. Recuperando datos del usuario...");
@@ -125,13 +157,6 @@ export default function MatrizAmbientalPage() {
   }, []);
 
 
-
-
-  // --- HANDLERS ---
-  function obtenerLabel(id, lista) {
-    const item = lista.find((x) => x.value === id);
-    return item ? item.label : "";
-  }
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -290,7 +315,6 @@ export default function MatrizAmbientalPage() {
     const nuevaFila = {
       //id: filasTabla.length + 1,
       id: Date.now(),
-      esNuevo: true,
       sector: sectorSeleccionado?.value,
       sectorNombre: sectorSeleccionado?.label,
       actividad: {

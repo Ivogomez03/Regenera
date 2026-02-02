@@ -12,52 +12,52 @@ export default function Modulo2Page() {
     const router = useRouter();
 
     useEffect(() => {
-        const auth = localStorage.getItem("auth"); 
+        const auth = localStorage.getItem("auth");
         if (!auth) {
-        router.push("/login"); 
+            router.push("/login");
         } else {
-            setIsCheckingAuth(false); 
+            setIsCheckingAuth(false);
         }
     }, [router]);
 
     if (isCheckingAuth) {
         return (
-        <div className={styles.loaderContainer}>
-            <img src="/icons8-hilandero.gif" alt="Cargando" className={styles.loaderImage} />
-            <p className={styles.loaderText}>Cargando...</p>
-        </div>
+            <div className={styles.loaderContainer}>
+                <img src="/icons8-hilandero.gif" alt="Cargando" className={styles.loaderImage} />
+                <p className={styles.loaderText}>Cargando...</p>
+            </div>
         );
-    
+
     }
 
     const modules = [
         {
-        title: "Matriz de aspectos e impactos ambientales",
-        href: "/modulo2/matrizAmbiental",
-        icon: FileText,
-        description: "Identifica y evalúa aspectos ambientales",
-        color: "teal",
+            title: "Matriz de aspectos e impactos ambientales",
+            href: "/modulo2/matrizAmbiental",
+            icon: FileText,
+            description: "Identifica y evalúa aspectos ambientales",
+            color: "teal",
         },
         {
-        title: "Matriz legal ambiental",
-        href: "/modulo2/matrizLegal",
-        icon: Scale,
-        description: "Gestiona requisitos legales aplicables",
-        color: "orange",
+            title: "Matriz legal ambiental",
+            href: "/modulo2/matrizLegal",
+            icon: Scale,
+            description: "Gestiona requisitos legales aplicables",
+            color: "orange",
         },
         {
-        title: "Indicadores ambientales",
-        href: "/modulo2/indicadoresAmbientales",
-        icon: TrendingUp,
-        description: "Monitorea el desempeño ambiental",
-        color: "green",
+            title: "Indicadores ambientales",
+            href: "/modulo2/indicadoresAmbientales",
+            icon: TrendingUp,
+            description: "Monitorea el desempeño ambiental",
+            color: "green",
         },
         {
-        title: "Matriz de objetivos, metas e indicadores",
-        href: "/modulo2/matrizObjetivos",
-        icon: Target,
-        description: "Define y rastrea objetivos ambientales",
-        color: "blue",
+            title: "Revisiones",
+            href: "/modulo2/revisiones",
+            icon: Target,
+            description: "Define y rastrea objetivos ambientales",
+            color: "blue",
         },
     ]
 
@@ -81,16 +81,16 @@ export default function Modulo2Page() {
                     {modules.map((module, index) => {
                         const IconComponent = module.icon
                         return (
-                        <Link key={index} href={module.href} className={`${styles.card} ${styles[module.color]}`}>
-                            <div className={styles.iconWrapper}>
-                            <IconComponent className={styles.icon} />
-                            </div>
-                            <div className={styles.cardContent}>
-                            <h3>{module.title}</h3>
-                            <p>{module.description}</p>
-                            </div>
-                            <div className={styles.cardArrow}>→</div>
-                        </Link>
+                            <Link key={index} href={module.href} className={`${styles.card} ${styles[module.color]}`}>
+                                <div className={styles.iconWrapper}>
+                                    <IconComponent className={styles.icon} />
+                                </div>
+                                <div className={styles.cardContent}>
+                                    <h3>{module.title}</h3>
+                                    <p>{module.description}</p>
+                                </div>
+                                <div className={styles.cardArrow}>→</div>
+                            </Link>
                         )
                     })}
                 </div>

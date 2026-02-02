@@ -14,4 +14,6 @@ public interface FormularioRepository extends JpaRepository<FormularioModel, Lon
 
     List<FormularioModel> findByUsuario_Email(String email);
 
+    List<FormularioModel> findByUsuario_Id(Long idUsuario);
+
 }

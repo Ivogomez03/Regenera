@@ -1,5 +1,7 @@
 package proyecto.request_response;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -25,6 +27,9 @@ public class RequisitoLegalCreateRequest {
 
     @NotBlank
     private String numero;
+
+    @NotNull
+    private LocalDate fecha;
 
     @NotNull
 

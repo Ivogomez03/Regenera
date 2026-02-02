@@ -36,7 +36,7 @@ public class ImpactoAmbientalController {
     // UPDATE
     @PutMapping("/{id:\\d+}")
     public ResponseEntity<ImpactoAmbientalModel> actualizar(@PathVariable Integer id,
-                                                            @RequestBody @Valid ImpactoAmbientalUpdateRequest req) {
+            @RequestBody @Valid ImpactoAmbientalUpdateRequest req) {
         return ResponseEntity.ok(impactoService.actualizar(id, req));
     }
 
@@ -47,4 +47,3 @@ public class ImpactoAmbientalController {
         return ResponseEntity.noContent().build();
     }
 }
-

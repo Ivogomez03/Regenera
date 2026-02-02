@@ -43,6 +43,16 @@ public class RequisitoLegalService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Sin permiso o no existe"));
     }
 
+    public List<RequisitoLegalResponse> buscarPlantillasPorAspecto(Long idAspecto) {
+
+        Long ID_ADMINISTRADOR = 1L;
+
+        return requisitoLegalRepo.findByAspecto_IdAspectoAmbientalTemaAndUsuario_Id(idAspecto, ID_ADMINISTRADOR)
+                .stream()
+                .map(this::construirResponse)
+                .toList();
+    }
+
     @Transactional
     public List<RequisitoLegalResponse> crear(Long idUsuario, List<RequisitoLegalCreateRequest> requisitos) {
 
@@ -85,6 +95,7 @@ public class RequisitoLegalService {
             requisitoLegal.setResultado(resultado);
             requisitoLegal.setAspecto(aspecto);
             requisitoLegal.setNumero(req.getNumero());
+            requisitoLegal.setFecha(req.getFecha());
             requisitoLegal.setAnio(req.getAnio());
             requisitoLegal.setResena(req.getResena());
             requisitoLegal.setObligacion(req.getObligacion());
@@ -175,6 +186,7 @@ public class RequisitoLegalService {
                 model.getResultado() != null ? model.getResultado().getIdResultado() : null,
                 model.getResultado() != null ? model.getResultado().getResultado() : null,
                 model.getAspecto().getIdAspectoAmbientalTema(),
+                model.getFecha(),
                 model.getAspecto().getAspectoAmbientalTema(),
                 model.getNumero(),
                 model.getAnio(),

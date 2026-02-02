@@ -1,5 +1,7 @@
 package proyecto.model;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -46,6 +48,9 @@ public class RequisitoLegalModel {
 
     @Column(name = "punto_inspeccion", columnDefinition = "TEXT")
     private String puntoInspeccion;
+
+    @Column(name = "fecha")
+    private LocalDate fecha;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_usuario", nullable = false)

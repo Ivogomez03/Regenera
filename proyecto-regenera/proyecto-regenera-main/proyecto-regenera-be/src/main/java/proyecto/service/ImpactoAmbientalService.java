@@ -25,7 +25,8 @@ public class ImpactoAmbientalService {
 
     public ImpactoAmbientalModel obtenerPorId(Integer idImpactoAmbiental) {
         return impactoRepo.findById(idImpactoAmbiental)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Impacto ambiental no encontrado"));
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Impacto ambiental no encontrado"));
     }
 
     @Transactional
@@ -49,7 +50,8 @@ public class ImpactoAmbientalService {
 
         if (req.impactoAmbiental() != null) {
             var nuevo = req.impactoAmbiental().trim();
-            if (nuevo.isEmpty()) throw new IllegalArgumentException("impactoAmbiental no puede quedar vacío.");
+            if (nuevo.isEmpty())
+                throw new IllegalArgumentException("impactoAmbiental no puede quedar vacío.");
 
             if (!nuevo.equalsIgnoreCase(db.getImpactoAmbiental())
                     && impactoRepo.existsByImpactoAmbientalIgnoreCase(nuevo)) {
@@ -78,4 +80,3 @@ public class ImpactoAmbientalService {
         }
     }
 }
-

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import proyecto.model.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -33,6 +34,8 @@ public class RequisitoLegalResponse {
     String resultado;
 
     Integer idAspecto;
+
+    LocalDate fecha;
 
     String aspecto;
 

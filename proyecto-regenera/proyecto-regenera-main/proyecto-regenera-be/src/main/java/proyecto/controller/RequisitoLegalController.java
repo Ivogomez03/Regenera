@@ -19,12 +19,12 @@ import java.util.List;
 @Tag(name = "Matriz_Legal")
 public class RequisitoLegalController {
 
-
     private final RequisitoLegalService service;
     private final UsuarioRepository usuarioRepo;
     private final CurrentUserService currentUserService;
 
-    public RequisitoLegalController(RequisitoLegalService service, UsuarioRepository usuarioRepo, CurrentUserService currentUserService) {
+    public RequisitoLegalController(RequisitoLegalService service, UsuarioRepository usuarioRepo,
+            CurrentUserService currentUserService) {
         this.service = service;
         this.usuarioRepo = usuarioRepo;
         this.currentUserService = currentUserService;
@@ -75,11 +75,15 @@ public class RequisitoLegalController {
         return service.listar(currentUserService.getUsername());
     }
 
-
     @GetMapping("/anios")
     public ResponseEntity<List<Integer>> listarAnios() {
 
         return ResponseEntity.ok(service.obtenerAnios());
+    }
+
+    @GetMapping("/plantillas/{idAspecto}")
+    public ResponseEntity<List<RequisitoLegalResponse>> obtenerPlantillas(@PathVariable Long idAspecto) {
+        return ResponseEntity.ok(service.buscarPlantillasPorAspecto(idAspecto));
     }
 
 }
