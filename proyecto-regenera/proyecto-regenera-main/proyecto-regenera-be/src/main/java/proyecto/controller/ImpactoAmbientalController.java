@@ -33,14 +33,12 @@ public class ImpactoAmbientalController {
         return ResponseEntity.ok(impactoService.crear(req));
     }
 
-    // UPDATE
     @PutMapping("/{id:\\d+}")
     public ResponseEntity<ImpactoAmbientalModel> actualizar(@PathVariable Integer id,
             @RequestBody @Valid ImpactoAmbientalUpdateRequest req) {
         return ResponseEntity.ok(impactoService.actualizar(id, req));
     }
 
-    // DELETE
     @DeleteMapping("/{id:\\d+}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         impactoService.eliminar(id);

@@ -62,7 +62,9 @@ public class RevisionService {
                     .id(Long.valueOf(i.getIdIndicador()))
                     .tipo("INDICADOR")
                     .titulo(i.getTipoIndicador().toString())
-                    .subtitulo(i.getObjetivo())
+                    .subtitulo("Meta: " + i.getMetaValor() + " " + i.getMetaUnidad() + " | Actual: "
+                            + i.getValorMedido() + " "
+                            + i.getMetaUnidad())
                     .fecha(i.getFechaRegistro())
                     .estado(i.getPorcentajeAvance() + "% Avance")
                     .build());

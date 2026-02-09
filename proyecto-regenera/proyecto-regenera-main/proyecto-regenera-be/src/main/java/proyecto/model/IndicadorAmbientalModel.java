@@ -64,9 +64,6 @@ public class IndicadorAmbientalModel {
 
     // Integración con Objetivos y Metas
 
-    @Column(name = "objetivo_asociado", nullable = false, columnDefinition = "TEXT")
-    private String objetivo;
-
     // Desglosamos la meta para poder calcular (Valor + Unidad)
     @Column(name = "meta_valor_objetivo")
     private Double metaValor;

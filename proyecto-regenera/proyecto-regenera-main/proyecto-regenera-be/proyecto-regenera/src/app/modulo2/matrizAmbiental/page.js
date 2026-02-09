@@ -87,34 +87,83 @@ export default function MatrizAmbientalPage() {
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    if (formularioId) {
-      const cargarFormularioExistente = async () => {
-        setIsLoading(true)
-        try {
-          const res = await axiosClient.get(`/api/formularios/${formularioId}`)
-          const data = res.data
 
-          // Cargar cabecera
-          setNombreEmpresa(data.nombreEmpresa)
-          setCodigoFormulario(data.codigo)
-          setFechaFormulario(data.fecha)
-          setIdFormularioActual(data.idFormulario)
 
-          // TODO: Cargar items de la grilla (necesitas endpoint que devuelva items)
-          // const resItems = await axiosClient.get(`/api/grilla/formularios/${formularioId}/items`)
-          // setFilasTabla(mapearItemsAFilas(resItems.data)) 
+  const cargarDatosUsuario = async () => {
+    setIsLoading(true);
+    try {
+      const resGrillas = await axiosClient.get("/api/grilla");
 
-          console.log("Formulario cargado:", data)
-        } catch (error) {
-          console.error("Error cargando formulario", error)
-        } finally {
-          setIsLoading(false)
+      if (Array.isArray(resGrillas.data) && resGrillas.data.length > 0) {
+
+        const filasMapeadas = resGrillas.data.map((item) => ({
+          // IMPORTANTE: Usamos 'idItem' que viene de la BD para la key de React
+          id: item.idItem,
+          codigoFormulario: item.codigoFormulario,
+          esNuevo: false, // Al venir de la BD, ya no es nuevo
+          sector: item.idSector,
+
+          // Mapeo para los Selects (value/label)
+          // Asegúrate que tu DTO en Java devuelva estos nombres (actividad, aspectoAmbiental, etc.)
+          // Si el DTO devuelve null en los nombres, ponemos "..." para que no falle
+          actividad: {
+            value: item.idActividad,
+            label: item.actividad || "..."
+          },
+          aspecto: {
+            value: item.idAspectoAmbiental,
+            label: item.aspectoAmbiental || "..."
+          },
+          impacto: {
+            value: item.idImpactoAmbiental,
+            label: item.impactoAmbiental || "..."
+          },
+          tipoImpacto: {
+            value: item.idTipoImpacto,
+            label: item.tipoImpacto || "..."
+          },
+          condicion: {
+            value: item.idCondicionImpacto,
+            label: item.condicionImpacto || "..."
+          },
+          requisito: {
+            value: item.idRequisitoLegalAsociado,
+            label: item.requisitoLegalAsociado || "..."
+          },
+
+          // Datos numéricos y texto
+          severidad: item.severidad,
+          magnitud: item.magnitud,
+          frecuencia: item.frecuencia,
+          reversibilidad: item.reversibilidad,
+          valoracion: item.valoracion,
+          significancia: item.valoracion > 15 ? 'Impacto significativo' : 'Impacto no significativo',
+          control: item.control,
+          observaciones: item.observaciones,
+
+          // Guardamos referencia al formulario padre por si acaso
+          idFormulario: item.idFormulario
+        }));
+
+        setFilasTabla(filasMapeadas);
+
+        // Si cargamos datos, recuperamos el ID del formulario actual para seguir trabajando sobre él
+        if (filasMapeadas.length > 0) {
+          setIdFormularioActual(resGrillas.data[0].idFormulario);
         }
       }
-      cargarFormularioExistente()
+    } catch (error) {
+      console.error("Error cargando grillas del usuario:", error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [formularioId])
+  };
+
+
+  useEffect(() => {
+    cargarDatosUsuario();
+  }, []);
+
   // CARGA INICIAL DE DATOS
   useEffect(() => {
     const fetchData = async () => {
@@ -315,6 +364,8 @@ export default function MatrizAmbientalPage() {
     const nuevaFila = {
       //id: filasTabla.length + 1,
       id: Date.now(),
+      codigoFormulario: codigoFormulario,
+      esNuevo: true,
       sector: sectorSeleccionado?.value,
       sectorNombre: sectorSeleccionado?.label,
       actividad: {
@@ -372,13 +423,34 @@ export default function MatrizAmbientalPage() {
   };
 
   // Eliminar fila
-  const handleEliminarFila = (id) => {
-    if (confirm("¿Estás seguro de eliminar esta fila?")) {
+  const handleEliminarFila = async (id) => {
+    if (!confirm("¿Estás seguro de eliminar esta fila?")) return;
+
+    // Buscamos la fila para saber si es nueva o si ya existe en la BDD
+    const filaAEliminar = filasTabla.find(f => f.id === id);
+
+    //Es una fila nueva que aún no se guardó en la BDD 
+    if (filaAEliminar && filaAEliminar.esNuevo) {
       setFilasTabla(prev => prev.filter(fila => fila.id !== id));
       setTieneCambios(true);
+      return;
+    }
+
+    // Es una fila que ya existe en la Base de Datos
+    try {
+      setIsLoading(true);
+      await axiosClient.delete(`/api/grilla/items/${id}`);
+
+      // Si la API responde OK, eliminamos de la vista
+      setFilasTabla(prev => prev.filter(fila => fila.id !== id));
+      alert("Fila eliminada correctamente.");
+    } catch (error) {
+      console.error("Error eliminando fila:", error);
+      alert("Error al eliminar la fila de la base de datos.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
 
   // Filas
   const filasFiltradas = filasTabla;
@@ -432,7 +504,6 @@ export default function MatrizAmbientalPage() {
       }
 
       // Guardar Filas
-      // Esto se ejecuta siempre, sea nuevo o viejo el formulario
       const promesasGrilla = filasTabla.map(fila => {
         const itemPayload = {
           idSector: fila.sector,
@@ -451,7 +522,14 @@ export default function MatrizAmbientalPage() {
           observaciones: fila.observaciones
         };
 
-        return axiosClient.post(`/api/grilla/formularios/${idFinal}/items`, itemPayload);
+        // ¿Es nuevo o existente?
+        if (fila.esNuevo) {
+          // SI ES NUEVO: Usamos POST para crear
+          return axiosClient.post(`/api/grilla/formularios/${idFinal}/items`, itemPayload);
+        } else {
+          // SI YA EXISTE: Usamos PUT para actualizar (usando el ID de la fila)
+          return axiosClient.put(`/api/grilla/items/${fila.id}`, itemPayload);
+        }
       });
 
       // Guardar Firmas
@@ -486,6 +564,9 @@ export default function MatrizAmbientalPage() {
 
       setSaveSuccess(true);
       setMensajeGuardado("Matriz y firmas guardadas correctamente.");
+
+      await cargarDatosUsuario();
+
       setTieneCambios(false);
 
     } catch (error) {
@@ -1071,6 +1152,7 @@ export default function MatrizAmbientalPage() {
                 <thead>
                   <tr>
                     <th rowSpan={3}>N°</th>
+                    <th rowSpan={3}>Código del Formulario</th>
                     <th rowSpan={3}>Actividad</th>
                     <th rowSpan={3}>Aspecto ambiental</th>
                     <th rowSpan={3}>Impacto Ambiental</th>
@@ -1123,6 +1205,7 @@ export default function MatrizAmbientalPage() {
                     filasFiltradas.map((fila, index) => (
                       <tr key={fila.id}>
                         <td>{index + 1}</td>
+                        <td>{fila.codigoFormulario}</td>
                         <td>{fila.actividad.label}</td>
                         <td>{fila.aspecto.label}</td>
                         <td>{fila.impacto.label}</td>
@@ -1260,6 +1343,7 @@ export default function MatrizAmbientalPage() {
                         type="text"
                         onChange={(e) => handleFirmanteChange("reviso", "firma", e.target.value)}
                         className={styles.tableInput}
+                        disabled
                       />
                     </td>
                     <td>
@@ -1267,6 +1351,7 @@ export default function MatrizAmbientalPage() {
                         type="text"
                         onChange={(e) => handleFirmanteChange("reviso", "aclaracion", e.target.value)}
                         className={styles.tableInput}
+                        disabled
                       />
                     </td>
                     <td>
@@ -1307,6 +1392,7 @@ export default function MatrizAmbientalPage() {
                         type="text"
                         onChange={(e) => handleFirmanteChange("aprobo", "firma", e.target.value)}
                         className={styles.tableInput}
+                        disabled
                       />
                     </td>
                     <td>
@@ -1314,6 +1400,7 @@ export default function MatrizAmbientalPage() {
                         type="text"
                         onChange={(e) => handleFirmanteChange("aprobo", "aclaracion", e.target.value)}
                         className={styles.tableInput}
+                        disabled
                       />
                     </td>
                     <td>

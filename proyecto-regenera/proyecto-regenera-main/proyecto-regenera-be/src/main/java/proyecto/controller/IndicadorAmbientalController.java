@@ -19,23 +19,17 @@ public class IndicadorAmbientalController {
 
     private final IndicadorAmbientalService indicadorService;
     private final CurrentUserService currentUserService;
-    private final UsuarioRepository usuarioRepo;
 
     public IndicadorAmbientalController(IndicadorAmbientalService indicadorService,
-            CurrentUserService currentUserService, UsuarioRepository usuarioRepo) {
+            CurrentUserService currentUserService) {
         this.indicadorService = indicadorService;
-        this.usuarioRepo = usuarioRepo;
+
         this.currentUserService = currentUserService;
     }
 
     @GetMapping("/listar")
     public ResponseEntity<List<IndicadorAmbientalModel>> listar() {
         return ResponseEntity.ok(indicadorService.listar());
-    }
-
-    @GetMapping("/buscar")
-    public ResponseEntity<List<IndicadorAmbientalModel>> buscarPorObjetivo(@RequestParam String objetivo) {
-        return ResponseEntity.ok(indicadorService.listarPorObjetivo(objetivo));
     }
 
     @PostMapping("/crear")

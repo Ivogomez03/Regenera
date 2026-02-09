@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Eye, FileText, Scale, Activity, Calendar, Search } from "lucide-react"
+import { Eye, FileText, Scale, Activity, Calendar, Search, FolderClosed } from "lucide-react"
+
 import axiosClient from "@/app/lib/axiosClient"
 import styles from "./revisiones.module.css" // Definir estilos similares a tus otros módulos
 
@@ -48,7 +49,7 @@ export default function RevisionesPage() {
         switch (item.tipo) {
             case "MATRIZ_ASPECTOS":
                 // Redirige a la página de edición/vista cargando el ID
-                return `/modulo2/matrizAmbiental?id=${item.id}`
+                return `/modulo2/matrizAmbiental/vista?id=${item.id}`
             case "MATRIZ_LEGAL":
                 // La matriz legal suele ser una lista global, redirigimos a la tabla general
                 return `/modulo2/matrizLegal`
@@ -78,6 +79,10 @@ export default function RevisionesPage() {
 
             <div className={styles.container}>
                 <div className={styles.pageHeader}>
+                    <div className={styles.iconHeader}>
+                        <FolderClosed size={40} />
+                    </div>
+
                     <h1>Revisiones y Documentos</h1>
                     <p>Historial de formularios, normativas e indicadores generados.</p>
                 </div>

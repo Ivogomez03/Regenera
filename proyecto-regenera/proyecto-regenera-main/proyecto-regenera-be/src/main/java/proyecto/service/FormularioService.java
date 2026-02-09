@@ -150,6 +150,7 @@ public class FormularioService {
     private GrillaResponse convertirGrillaAResponse(GrillaModel grilla) {
         return new GrillaResponse(
                 grilla.getIdItem(),
+                grilla.getFormulario().getCodigo(),
                 grilla.getSector().getIdSector(),
                 grilla.getSector().getSector(),
 

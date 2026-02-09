@@ -22,7 +22,6 @@ public class TipoImpactoController {
         return ResponseEntity.ok(tipoImpactoService.listar());
     }
 
-    // GET - por ID
     @GetMapping("/{id}")
     public ResponseEntity<TipoImpactoModel> obtener(@PathVariable Integer id) {
         return ResponseEntity.ok(tipoImpactoService.obtenerPorId(id));
@@ -35,7 +34,7 @@ public class TipoImpactoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<TipoImpactoModel> actualizar(@PathVariable Integer id,
-                                                       @RequestBody TipoImpactoModel datos) {
+            @RequestBody TipoImpactoModel datos) {
         return ResponseEntity.ok(tipoImpactoService.actualizar(id, datos));
     }
 

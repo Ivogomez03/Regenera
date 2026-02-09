@@ -78,4 +78,10 @@ public class GrillaController {
         String username = currentUserService.getUsername();
         return grillaRepository.findDistinctSectoresByFormularioAndEmail(idFormulario, username);
     }
+
+    @GetMapping
+    public ResponseEntity<List<GrillaResponse>> listarPorUsuario() {
+
+        return ResponseEntity.ok(service.listarPorUsuario());
+    }
 }

@@ -44,8 +44,6 @@ public class IndicadorAmbientalCreateRequest {
     private String respCargaSector;
 
     // --- Integración con Objetivos ---
-    @NotBlank(message = "El objetivo asociado es obligatorio")
-    private String objetivo;
 
     @NotNull(message = "El valor de la meta es obligatorio")
     private Double metaValor;

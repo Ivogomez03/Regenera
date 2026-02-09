@@ -20,4 +20,10 @@ public interface GrillaRepository extends JpaRepository<GrillaModel, Long> {
        List<GrillaModel> findByFormulario_IdFormulario(Long idFormulario);
 
        List<GrillaModel> findByFormulario_IdFormularioAndSector_IdSector(Long idFormulario, Long idSector);
+
+       @Query("SELECT g FROM GrillaModel g " +
+                     "JOIN g.formulario f " +
+                     "WHERE f.usuario.id = :idUsuario " +
+                     "ORDER BY f.fecha DESC, g.idItem ASC")
+       List<GrillaModel> findByUsuarioId(@Param("idUsuario") Long idUsuario);
 }

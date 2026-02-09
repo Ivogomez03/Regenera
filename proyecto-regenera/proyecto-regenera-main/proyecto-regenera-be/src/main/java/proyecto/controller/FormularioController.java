@@ -69,9 +69,8 @@ public class FormularioController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<FormularioResponse>> listar() {
-        // Asegúrate de que service.listar() también devuelva List<FormularioResponse>
         return ResponseEntity.ok(service.listar(currentUserService.getUsername()));
     }
 

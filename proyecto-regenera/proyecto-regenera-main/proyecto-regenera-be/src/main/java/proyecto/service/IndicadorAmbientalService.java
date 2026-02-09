@@ -30,12 +30,6 @@ public class IndicadorAmbientalService {
         return indicadorRepository.findAll();
     }
 
-    // Listar por objetivo (para la Matriz de Seguimiento)
-    @Transactional(readOnly = true)
-    public List<IndicadorAmbientalModel> listarPorObjetivo(String objetivo) {
-        return indicadorRepository.findByObjetivoContainingIgnoreCase(objetivo);
-    }
-
     @Transactional
     public IndicadorAmbientalModel crear(IndicadorAmbientalCreateRequest req, Long idUsuario) {
         System.out.println("El id del usuario es: " + usuarioRepo.findById(idUsuario));
@@ -59,7 +53,6 @@ public class IndicadorAmbientalService {
                 .respCargaCargo(req.getRespCargaCargo())
                 .respCargaSector(req.getRespCargaSector())
                 // Datos del objetivo (Matriz)
-                .objetivo(req.getObjetivo())
                 .metaValor(req.getMetaValor())
                 .metaUnidad(req.getMetaUnidad())
                 .responsableCumplimiento(req.getResponsableCumplimiento())
@@ -88,7 +81,6 @@ public class IndicadorAmbientalService {
             dto.setRespCargaApellido(model.getRespCargaApellido());
             dto.setRespCargaCargo(model.getRespCargaCargo());
             dto.setRespCargaSector(model.getRespCargaSector());
-            dto.setObjetivo(model.getObjetivo());
             dto.setMetaValor(model.getMetaValor());
             dto.setMetaUnidad(model.getMetaUnidad());
             dto.setResponsableCumplimiento(model.getResponsableCumplimiento());

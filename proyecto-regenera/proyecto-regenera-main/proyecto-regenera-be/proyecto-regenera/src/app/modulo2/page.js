@@ -5,7 +5,7 @@ import styles from "./modulo2.module.css";
 import Image from 'next/image';
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, Scale, TrendingUp, Target } from "lucide-react"
+import { FileText, Scale, TrendingUp, Target, FileChartColumnIncreasing } from "lucide-react"
 
 export default function Modulo2Page() {
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
@@ -56,9 +56,16 @@ export default function Modulo2Page() {
             title: "Revisiones",
             href: "/modulo2/revisiones",
             icon: Target,
-            description: "Define y rastrea objetivos ambientales",
+            description: "Revisa y audita el sistema ambiental",
             color: "blue",
         },
+        {
+            title: "Matriz de objetivos, metas e indicadores",
+            href: "/modulo2/matrizSeguimiento",
+            icon: FileChartColumnIncreasing,
+            description: "Relaciona metas, objetivos e indicadores para seguimiento",
+            color: "purple",
+        }
     ]
 
     return (

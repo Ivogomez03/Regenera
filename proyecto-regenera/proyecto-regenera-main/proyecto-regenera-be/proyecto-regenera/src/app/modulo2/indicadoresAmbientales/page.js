@@ -166,11 +166,7 @@ export default function IndicadoresPage() {
                             {/*  Objetivos y Responsables */}
                             <div className={styles.column}>
                                 <h3>Vinculación a Objetivos</h3>
-                                <div className={styles.formGroup}>
-                                    <label>Objetivo Asociado*</label>
-                                    <textarea {...register("objetivo")} rows="2" placeholder="Describa el objetivo ambiental..." />
-                                    <p className={styles.error}>{errors.objetivo?.message}</p>
-                                </div>
+
 
                                 <div className={styles.row}>
                                     <div className={styles.formGroup}>
@@ -219,7 +215,6 @@ export default function IndicadoresPage() {
                                 <thead>
                                     <tr>
 
-                                        <th>Objetivo</th>
                                         <th>Meta</th>
                                         <th>Valor Actual</th>
                                         <th>Unidad</th>
@@ -232,7 +227,7 @@ export default function IndicadoresPage() {
                                     {indicadores.length > 0 ? (
                                         indicadores.map((ind) => (
                                             <tr key={ind.idIndicador}>
-                                                <td>{ind.objetivo}</td>
+
                                                 <td>{ind.metaValor}</td>
                                                 <td>{ind.valorMedido}</td>
                                                 <td>{ind.metaUnidad}</td>

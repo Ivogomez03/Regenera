@@ -1,0 +1,203 @@
+/* src/app/modulo2/matrizAmbiental/vista/vista.module.css */
+
+.pageContainer {
+    background-color: #525659;
+    /* Gris oscuro tipo visor PDF */
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.toolbar {
+    width: 100%;
+    max-width: 297mm;
+    /* Ancho A4 Landscape */
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.backButton,
+.printButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+}
+
+.backButton {
+    background: white;
+    color: #333;
+}
+
+.printButton {
+    background: #0284c7;
+    color: white;
+}
+
+/* --- LA HOJA DE PAPEL --- */
+.documento {
+    background: white;
+    width: 297mm;
+    /* A4 Landscape */
+    min-height: 210mm;
+    padding: 15mm;
+    /* Márgenes de impresión */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    font-family: 'Arial', sans-serif;
+    color: black;
+    box-sizing: border-box;
+}
+
+.docHeader {
+    display: flex;
+    border: 2px solid black;
+    margin-bottom: 10px;
+}
+
+.logoBox,
+.titleBox,
+.infoBox {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-right: 1px solid black;
+}
+
+.logoBox {
+    width: 15%;
+    border-right: 1px solid black;
+}
+
+.titleBox {
+    width: 65%;
+    text-align: center;
+}
+
+.infoBox {
+    width: 20%;
+    font-size: 11px;
+    border-right: none;
+    align-items: flex-start;
+}
+
+.titleBox h1 {
+    margin: 0;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.titleBox h2 {
+    margin: 5px 0 0;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.infoBox p {
+    margin: 2px 0;
+}
+
+/* TABLA */
+.mainTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    /* Letra pequeña para que entre todo */
+}
+
+.mainTable th,
+.mainTable td {
+    border: 1px solid black;
+    padding: 4px;
+    vertical-align: middle;
+}
+
+.mainTable th {
+    background-color: #e5e7eb;
+    /* Gris suave */
+    text-align: center;
+    font-weight: bold;
+}
+
+.center {
+    text-align: center;
+}
+
+.boldCenter {
+    text-align: center;
+    font-weight: bold;
+}
+
+.badgeRed {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+.badgeGreen {
+    color: #16a34a;
+}
+
+/* FIRMAS */
+.firmasSection {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    page-break-inside: avoid;
+}
+
+.firmaBox {
+    width: 30%;
+    text-align: center;
+}
+
+.firmaLine {
+    border-bottom: 1px solid black;
+    margin-bottom: 5px;
+    height: 40px;
+    /* Espacio para garabato */
+}
+
+.firmaBox p {
+    margin: 2px 0;
+    font-size: 11px;
+}
+
+.cargo {
+    font-style: italic;
+    color: #444;
+}
+
+/* --- AJUSTES DE IMPRESIÓN --- */
+@media print {
+    .pageContainer {
+        background: white;
+        padding: 0;
+        display: block;
+    }
+
+    .toolbar {
+        display: none;
+    }
+
+    .documento {
+        width: 100%;
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    @page {
+        size: landscape;
+        /* Forzar horizontal */
+        margin: 1cm;
+    }
+}

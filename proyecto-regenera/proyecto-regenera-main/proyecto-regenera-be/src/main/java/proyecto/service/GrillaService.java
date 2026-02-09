@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import proyecto.model.*;
 import proyecto.repository.*;
 import proyecto.request_response.GrillaCreateRequest;
+import proyecto.request_response.GrillaResponse;
 
 import java.util.List;
 
@@ -16,14 +17,16 @@ public class GrillaService {
     private final GrillaRepository grillaRepo;
     private final ImpactoSignificadoRepository impactoSignificadoRepo;
     private final FormularioService formularioService;
+    private final CurrentUserService currentUserService;
 
     public GrillaService(
             GrillaRepository grillaRepo,
             ImpactoSignificadoRepository impactoSignificadoRepo,
-            FormularioService formularioService) {
+            FormularioService formularioService, CurrentUserService currentUserService) {
         this.grillaRepo = grillaRepo;
         this.impactoSignificadoRepo = impactoSignificadoRepo;
         this.formularioService = formularioService;
+        this.currentUserService = currentUserService;
     }
 
     private ImpactoSignificadoModel calcularImpacto(Integer s, Integer m, Integer f, Integer r) {
@@ -149,5 +152,57 @@ public class GrillaService {
             return grillaRepo.findByFormulario_IdFormularioAndSector_IdSector(idFormulario, sector);
         }
         return grillaRepo.findByFormulario_IdFormulario(idFormulario);
+    }
+
+    public List<GrillaResponse> listarPorUsuario() {
+        Long idUsuario = currentUserService.getCurrentUserId();
+
+        return grillaRepo.findByUsuarioId(idUsuario)
+                .stream()
+                .map(this::mapToResponse) // Asegúrate de tener este método mapeador o usar un mapper
+                .toList();
+    }
+
+    public GrillaResponse mapToResponse(GrillaModel g) {
+        GrillaResponse r = new GrillaResponse();
+
+        r.setIdItem(g.getIdItem());
+        r.setCodigoFormulario(g.getFormulario().getCodigo());
+
+        r.setIdSector(g.getSector().getIdSector());
+        r.setSector(g.getSector().getSector());
+
+        r.setIdActividad(g.getActividad().getIdActividad());
+        r.setActividad(g.getActividad().getActividad());
+
+        r.setIdAspectoAmbiental(g.getAspectoAmbiental().getIdAspectoAmbiental());
+        r.setAspectoAmbiental(g.getAspectoAmbiental().getAspectoAmbiental());
+
+        r.setIdImpactoAmbiental(g.getImpactoAmbiental().getIdImpactoAmbiental());
+        r.setImpactoAmbiental(g.getImpactoAmbiental().getImpactoAmbiental());
+
+        r.setIdTipoImpacto(g.getTipoImpacto().getIdTipoImpacto());
+        r.setTipoImpacto(g.getTipoImpacto().getTipoImpacto());
+
+        r.setIdCondicionImpacto(g.getCondicionImpacto().getIdCondicionImpacto());
+        r.setCondicionImpacto(g.getCondicionImpacto().getCondicionImpacto());
+
+        r.setSeveridad(g.getSeveridad());
+        r.setMagnitud(g.getMagnitud());
+        r.setFrecuencia(g.getFrecuencia());
+        r.setReversibilidad(g.getReversibilidad());
+        r.setValoracion(g.getValoracion());
+
+        r.setImpactoSignificado(g.getImpactoSignificado().getImpactoSignificado());
+
+        r.setIdRequisitoLegalAsociado(
+                g.getRequisitoLegalAsociado().getIdRequisitoLegalAsociado());
+        r.setRequisitoLegalAsociado(
+                g.getRequisitoLegalAsociado().getRequisitoLegalAsociado());
+
+        r.setControl(g.getControl());
+        r.setObservaciones(g.getObservaciones());
+
+        return r;
     }
 }
