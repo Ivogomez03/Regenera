@@ -41,10 +41,12 @@
 }
 
 @keyframes patternFloat {
+
   0%,
   100% {
     transform: scale(1) translate(0, 0);
   }
+
   50% {
     transform: scale(1.1) translate(10px, -10px);
   }
@@ -81,6 +83,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -286,7 +289,7 @@
   align-items: center;
 }
 
-.inputWithButton > div {
+.inputWithButton>div {
   flex: 1;
 }
 
@@ -517,7 +520,8 @@
   color: #94a3b8;
 }
 
-.resultadoBadge {
+.resultadoBadge,
+.noResultadoBadge {
   display: inline-flex;
   align-items: center;
   padding: 0.4rem 0.875rem;
@@ -527,6 +531,12 @@
   font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.noResultadoBadge {
+
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+
 }
 
 /* Delete Button */
@@ -601,6 +611,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -625,10 +636,12 @@
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.6;
   }
@@ -736,6 +749,7 @@
 }
 
 @media print {
+
   .topHeader,
   .backgroundPattern,
   .formSection:not(:first-of-type),

@@ -108,10 +108,10 @@ export default function IndicadoresPage() {
                         </div>
 
 
-                        <h1> Indicadores y Metas Ambientales</h1>
+                        <h1> Indicadores Ambientales</h1>
 
 
-                        <p>Registro, monitoreo y seguimiento de objetivos ambientales.</p>
+                        <p>Registro, monitoreo y seguimiento de indicadores ambientales.</p>
                     </div>
 
                     {/*  FORMULARIO DE CARGA  */}
@@ -164,14 +164,21 @@ export default function IndicadoresPage() {
                             </div>
 
                             {/*  Objetivos y Responsables */}
+
+
+
                             <div className={styles.column}>
                                 <h3>Vinculación a Objetivos</h3>
-
+                                <div className={styles.formGroup}>
+                                    <label>Objetivo Asociado*</label>
+                                    <textarea {...register("objetivoAsociado")} rows="2" placeholder="Describa el objetivo ambiental..." />
+                                    <p className={styles.error}>{errors.objetivoAsociado?.message}</p>
+                                </div>
 
                                 <div className={styles.row}>
                                     <div className={styles.formGroup}>
                                         <label>Meta (Valor)*</label>
-                                        <input type="number" step="0.01" {...register("metaValor")} />
+                                        <input type="number" step="0.01" {...register("metaValor")} placeholder="Ej. 1000" />
                                         <p className={styles.error}>{errors.metaValor?.message}</p>
                                     </div>
                                     <div className={styles.formGroup}>
@@ -209,12 +216,12 @@ export default function IndicadoresPage() {
 
                     {/*TABLA MATRIZ DE SEGUIMIENTO */}
                     <section className={styles.tableSection}>
-                        <h3>Matriz de Seguimiento de Objetivos</h3>
+                        <h3>Matriz de Seguimiento de Indicadores Ambientales</h3>
                         <div className={styles.tableWrapper}>
                             <table className={styles.table}>
                                 <thead>
                                     <tr>
-
+                                        <th>Objetivo</th>
                                         <th>Meta</th>
                                         <th>Valor Actual</th>
                                         <th>Unidad</th>
@@ -227,25 +234,11 @@ export default function IndicadoresPage() {
                                     {indicadores.length > 0 ? (
                                         indicadores.map((ind) => (
                                             <tr key={ind.idIndicador}>
-
+                                                <td>{ind.objetivoAsociado}</td>
                                                 <td>{ind.metaValor}</td>
                                                 <td>{ind.valorMedido}</td>
                                                 <td>{ind.metaUnidad}</td>
                                                 <td>{TIPOS_INDICADOR.find(t => t.value === ind.tipoIndicador)?.label || ind.tipoIndicador}</td>
-                                                {/*
-                                                <td>
-                                                    <div className={styles.progressBarContainer}>
-                                                        <div
-                                                            className={styles.progressBar}
-                                                            style={{
-                                                                width: `${Math.min(ind.porcentajeAvance || 0, 100)}%`,
-                                                                backgroundColor: getAvanceColor(ind.porcentajeAvance || 0)
-                                                            }}
-                                                        >
-                                                        </div>
-                                                        <span className={styles.progressText}>{ind.porcentajeAvance}%</span>
-                                                    </div>
-                                                </td>*/}
                                                 <td>{ind.responsableCumplimiento}</td>
                                                 <td>{ind.fechaRegistro}</td>
                                             </tr>

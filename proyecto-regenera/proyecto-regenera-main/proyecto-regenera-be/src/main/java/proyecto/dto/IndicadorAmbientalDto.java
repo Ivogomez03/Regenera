@@ -15,7 +15,7 @@ public class IndicadorAmbientalDto {
     private String respCargaApellido;
     private String respCargaCargo;
     private String respCargaSector;
-    private String objetivo;
+    private String objetivoAsociado;
     private Double metaValor;
     private String metaUnidad;
     private String responsableCumplimiento;

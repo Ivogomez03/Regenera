@@ -53,19 +53,20 @@ export default function Modulo2Page() {
             color: "green",
         },
         {
+            title: "Matriz de objetivos, metas e indicadores",
+            href: "/modulo2/metasObjetivos",
+            icon: FileChartColumnIncreasing,
+            description: "Relaciona metas, objetivos e indicadores para seguimiento",
+            color: "purple",
+        },
+        {
             title: "Revisiones",
             href: "/modulo2/revisiones",
             icon: Target,
             description: "Revisa y audita el sistema ambiental",
             color: "blue",
-        },
-        {
-            title: "Matriz de objetivos, metas e indicadores",
-            href: "/modulo2/matrizSeguimiento",
-            icon: FileChartColumnIncreasing,
-            description: "Relaciona metas, objetivos e indicadores para seguimiento",
-            color: "purple",
         }
+
     ]
 
     return (

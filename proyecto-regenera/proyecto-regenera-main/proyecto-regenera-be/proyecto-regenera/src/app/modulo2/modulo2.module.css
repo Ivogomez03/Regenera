@@ -100,10 +100,10 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 1rem;
   width: 100%;
-  max-width: 1250px;
+  max-width: 1450px;
   animation: fadeInUp 0.8s ease-out;
 }
 

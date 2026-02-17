@@ -53,7 +53,7 @@ public class IndicadorAmbientalService {
                 .respCargaCargo(req.getRespCargaCargo())
                 .respCargaSector(req.getRespCargaSector())
                 // Datos del objetivo (Matriz)
-                .metaValor(req.getMetaValor())
+                .objetivoAsociado(req.getObjetivoAsociado())
                 .metaUnidad(req.getMetaUnidad())
                 .responsableCumplimiento(req.getResponsableCumplimiento())
                 .build();
@@ -65,6 +65,15 @@ public class IndicadorAmbientalService {
     public List<IndicadorAmbientalDto> listarPorUsuario(Long idUsuario) {
         List<IndicadorAmbientalDto> dtos = convertirModelADtos(indicadorRepository.findByUsuario_Id(idUsuario));
         return dtos;
+    }
+
+    @Transactional(readOnly = true)
+    public Double getPorcentajeAvance(Double valorMedido, Double metaValor) {
+        if (metaValor == null || metaValor == 0 || valorMedido == null) {
+            return 0.0;
+        }
+        double avance = (valorMedido / metaValor) * 100;
+        return Math.round(avance * 100.0) / 100.0; // Redondeo a 2 decimales
     }
 
     public List<IndicadorAmbientalDto> convertirModelADtos(List<IndicadorAmbientalModel> modelos) {
@@ -81,6 +90,7 @@ public class IndicadorAmbientalService {
             dto.setRespCargaApellido(model.getRespCargaApellido());
             dto.setRespCargaCargo(model.getRespCargaCargo());
             dto.setRespCargaSector(model.getRespCargaSector());
+            dto.setObjetivoAsociado(model.getObjetivoAsociado());
             dto.setMetaValor(model.getMetaValor());
             dto.setMetaUnidad(model.getMetaUnidad());
             dto.setResponsableCumplimiento(model.getResponsableCumplimiento());

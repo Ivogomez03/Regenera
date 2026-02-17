@@ -63,9 +63,10 @@ public class IndicadorAmbientalModel {
     private String respCargaSector;
 
     // Integración con Objetivos y Metas
+    @Column(name = "objetivo_asociado", columnDefinition = "TEXT")
+    private String objetivoAsociado;
 
-    // Desglosamos la meta para poder calcular (Valor + Unidad)
-    @Column(name = "meta_valor_objetivo")
+    @Column(name = "meta_valor")
     private Double metaValor;
 
     @Column(name = "meta_unidad")
@@ -74,20 +75,4 @@ public class IndicadorAmbientalModel {
     @Column(name = "responsable_cumplimiento")
     private String responsableCumplimiento; // Persona asignada al cumplimiento del objetivo
 
-    // Campo Calculado: Avance
-    // No se persiste en BD necesariamente, o se puede persistir si se requiere
-    // historial.
-    // Aquí lo definimos como Transient para que se calcule al vuelo al pedir el
-    // dato.
-    @Transient
-    public Double getPorcentajeAvance() {
-        if (metaValor == null || metaValor == 0 || valorMedido == null) {
-            return 0.0;
-        }
-        // Cálculo básico: (Valor Actual / Meta) * 100
-        // NOTA: Dependiendo del indicador, "superar" la meta puede ser bueno o malo
-        // (ej. residuos vs producción). Este es un cálculo genérico de progreso.
-        double avance = (valorMedido / metaValor) * 100;
-        return Math.round(avance * 100.0) / 100.0; // Redondeo a 2 decimales
-    }
 }

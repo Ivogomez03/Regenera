@@ -237,7 +237,7 @@ export default function MatrizAmbientalPage() {
       .trim();
   }
 
-  const handleAgregarOpcion = async ({
+  const handleAgregarOpcion = async (e, {
     inputValue,
     opciones,
     setOpciones,
@@ -248,6 +248,7 @@ export default function MatrizAmbientalPage() {
     labelField,
     extraFields = {}
   }) => {
+    if (e) e.preventDefault();
     const texto = inputValue.trim();
     if (!texto) return;
 
@@ -716,8 +717,8 @@ export default function MatrizAmbientalPage() {
                   <button
                     type="button"
                     className={styles.plusButton}
-                    onClick={() =>
-                      handleAgregarOpcion({
+                    onMouseDown={(e) =>
+                      handleAgregarOpcion(e, {
                         inputValue: inputSector,
                         opciones: sectores,
                         setOpciones: setSectores,
@@ -1093,24 +1094,7 @@ export default function MatrizAmbientalPage() {
                       <option>Cargando...</option>
                     </select>
                   )}
-                  <button
-                    type="button"
-                    className={styles.plusButton}
-                    onClick={() =>
-                      handleAgregarOpcion({
-                        inputValue: inputRequisito,
-                        opciones: requisitos,
-                        setOpciones: setRequisitos,
-                        setSelected: setRequisitoSeleccionado,
-                        setInput: setInputRequisito,
-                        endpoint: "/api/requisitos-legales-asociados",
-                        idField: "idRequisitoLegalAsociado",
-                        labelField: "requisitoLegalAsociado",
-                      })
-                    }
-                  >
-                    <Plus size={18} />
-                  </button>
+
                 </div>
               </div>
 
@@ -1217,7 +1201,8 @@ export default function MatrizAmbientalPage() {
                         <td>{fila.reversibilidad}</td>
                         <td>{fila.valoracion}</td>
                         <td>
-                          <span className={styles.resultadoBadge}>{fila.significancia}</span>
+
+                          <span className={styles[fila.significancia === "Impacto significativo" ? "resultadoBadge" : "noResultadoBadge"]}>{fila.significancia}</span>
                         </td>
                         <td>{fila.requisito.label}</td>
                         <td>{fila.control}</td>
@@ -1305,11 +1290,11 @@ export default function MatrizAmbientalPage() {
                     </td>
                     <td>
                       <input
-                        type="text"
-                        value={firmantes.elaboro.fecha}
-                        readOnly
+                        type="date"
+                        value={firmantes.elaboro.fecha || ''}
+                        onChange={(e) => handleFirmanteChange("elaboro", "fecha", e.target.value)}
                         className={styles.tableInput}
-                        placeholder="Se completa al guardar"
+                        placeholder="Completar"
                       />
                     </td>
                   </tr>
@@ -1356,10 +1341,11 @@ export default function MatrizAmbientalPage() {
                     </td>
                     <td>
                       <input
-                        type="text"
-                        readOnly
+                        type="date"
+                        value={firmantes.elaboro.fecha || ''}
+                        onChange={(e) => handleFirmanteChange("elaboro", "fecha", e.target.value)}
                         className={styles.tableInput}
-                        placeholder="Se completa al guardar"
+                        placeholder="Completar"
                       />
                     </td>
                   </tr>
@@ -1405,10 +1391,11 @@ export default function MatrizAmbientalPage() {
                     </td>
                     <td>
                       <input
-                        type="text"
-                        readOnly
+                        type="date"
+                        value={firmantes.elaboro.fecha || ''}
+                        onChange={(e) => handleFirmanteChange("elaboro", "fecha", e.target.value)}
                         className={styles.tableInput}
-                        placeholder="Se completa al guardar"
+                        placeholder="Completar"
                       />
                     </td>
                   </tr>

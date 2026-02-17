@@ -3,11 +3,9 @@ import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import Select from "react-select"
-import { Target, Plus, Save, Trash2, CheckCircle, Printer, ArrowLeft } from "lucide-react"
+import { Target, Plus, Save, Trash2, CheckCircle, Printer } from "lucide-react"
 import axiosClient from "@/app/lib/axiosClient"
-
-
-import styles from "../matrizAmbiental/matrizAmbiental.module.css"
+import styles from "./metasObjetivos.module.css"
 
 export default function MetasObjetivosPage() {
 
@@ -17,14 +15,21 @@ export default function MetasObjetivosPage() {
     const [isGuardando, setIsGuardando] = useState(false)
     const [saveMessage, setSaveMessage] = useState("")
 
-    // carga inicial de datos
+    // Estado para el formulario de "Nuevo Ingreso"
+    const [nuevoItem, setNuevoItem] = useState({
+        objetivo: "",
+        meta: "",
+        responsable: "",
+        indicadorValue: null
+    })
 
+    // 1. Carga inicial de datos
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true)
             try {
-                const resInd = await axiosClient.get('/api/indicadores-ambientales')
-
+                // Cargar Indicadores para el Select
+                const resInd = await axiosClient.get('/api/indicadores-ambientales/listar')
                 let options = []
                 if (Array.isArray(resInd.data)) {
                     options = resInd.data.map(i => ({
@@ -34,12 +39,12 @@ export default function MetasObjetivosPage() {
                 }
                 setIndicadoresOptions(options)
 
+                // Cargar Objetivos Guardados
                 const resObj = await axiosClient.get('/api/objetivos')
-
                 if (Array.isArray(resObj.data)) {
                     const filasMapeadas = resObj.data.map(item => ({
                         id: item.id,
-                        esNuevo: false,
+                        esNuevo: false, // Ya existe en BD
                         objetivo: item.objetivo,
                         meta: item.meta,
                         responsable: item.responsable,
@@ -57,37 +62,50 @@ export default function MetasObjetivosPage() {
         fetchData()
     }, [])
 
-    // Agregar una fila vacía
+    // 2. Manejar inputs del Formulario de Nuevo Ingreso
+    const handleNewInputChange = (campo, valor) => {
+        setNuevoItem(prev => ({ ...prev, [campo]: valor }))
+    }
+
+    const handleNewSelectChange = (option) => {
+        setNuevoItem(prev => ({ ...prev, indicadorValue: option ? option.value : null }))
+    }
+
+    // 3. Agregar lo del formulario a la tabla visual
     const agregarFila = () => {
+        // Validacion simple
+        if (!nuevoItem.objetivo || !nuevoItem.meta) {
+            alert("Por favor complete al menos el Objetivo y la Meta.")
+            return
+        }
+
         const nuevaFila = {
-            id: Date.now(),
-            esNuevo: true,
+            id: Date.now(), // ID temporal
+            esNuevo: true,  // Marcamos para saber que hay que guardarlo
+            objetivo: nuevoItem.objetivo,
+            meta: nuevoItem.meta,
+            responsable: nuevoItem.responsable,
+            indicadorValue: nuevoItem.indicadorValue
+        }
+
+        setFilas([...filas, nuevaFila])
+
+        // Limpiar el formulario
+        setNuevoItem({
             objetivo: "",
             meta: "",
-            indicadorValue: null,
-            responsable: ""
-        }
-        setFilas([...filas, nuevaFila])
+            responsable: "",
+            indicadorValue: null
+        })
     }
 
-    const handleChange = (id, campo, valor) => {
-        setFilas(prev => prev.map(f => f.id === id ? { ...f, [campo]: valor } : f))
-    }
-
-    const handleSelectChange = (id, option) => {
-        setFilas(prev => prev.map(f => f.id === id ? {
-            ...f,
-            indicadorValue: option ? option.value : null
-        } : f))
-    }
-
-    // Eliminar fila (Si es nueva borra local, si es vieja llama a API)
+    // 4. Eliminar Fila
     const eliminarFila = async (id) => {
         if (!confirm("¿Eliminar este objetivo?")) return
 
         const fila = filas.find(f => f.id === id)
 
-        // Si ya existía en BD, borrarlo real
+        // Si ya existía en BD, borrarlo real de la API
         if (!fila.esNuevo) {
             try {
                 await axiosClient.delete(`/api/objetivos/${id}`)
@@ -96,18 +114,19 @@ export default function MetasObjetivosPage() {
                 return
             }
         }
-
         // Actualizar estado visual
         setFilas(prev => prev.filter(f => f.id !== id))
     }
 
+    // 5. Guardar Todo (Sincronizar cambios nuevos)
     const guardarTodo = async () => {
         setIsGuardando(true)
         setSaveMessage("")
 
         try {
+            // Enviamos toda la lista actual para asegurar sincronía
             const payload = filas.map(f => ({
-                id: f.esNuevo ? null : f.id,
+                id: f.esNuevo ? null : f.id, // Si es nuevo va null, si no va el ID
                 objetivo: f.objetivo,
                 meta: f.meta,
                 responsable: f.responsable,
@@ -118,6 +137,7 @@ export default function MetasObjetivosPage() {
 
             setSaveMessage("Guardado exitosamente")
 
+            // Recargar datos para confirmar IDs reales
             const resObj = await axiosClient.get('/api/objetivos')
             if (resObj.data) {
                 setFilas(resObj.data.map(item => ({
@@ -135,11 +155,15 @@ export default function MetasObjetivosPage() {
             setSaveMessage("Error al guardar")
         } finally {
             setIsGuardando(false)
-
             setTimeout(() => setSaveMessage(""), 3000)
         }
     }
 
+    // Helper para obtener etiqueta del indicador
+    const getIndicadorLabel = (id) => {
+        const found = indicadoresOptions.find(opt => opt.value === id)
+        return found ? found.label : "-"
+    }
 
     return (
         <main className={styles.main}>
@@ -161,16 +185,80 @@ export default function MetasObjetivosPage() {
                         <p>Definición de objetivos estratégicos e indicadores de seguimiento.</p>
                     </div>
 
-                    {/* TABLA DE CONTENIDO */}
+                    {/* SECCIÓN 1: FORMULARIO DE CARGA */}
+                    <div className={styles.formSection}>
+                        <div className={styles.sectionHeader}>
+                            <h2>Definir Nuevo Objetivo</h2>
+                        </div>
+
+                        <div className={styles.formGrid}>
+                            <div className={styles.formGroup}>
+                                <label>1. Objetivo Global</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ej: Reducir consumo eléctrico..."
+                                    value={nuevoItem.objetivo}
+                                    onChange={(e) => handleNewInputChange('objetivo', e.target.value)}
+                                />
+                            </div>
+
+                            <div className={styles.formGroup}>
+                                <label>2. Meta Específica</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ej: Disminuir un 10% para..."
+                                    value={nuevoItem.meta}
+                                    onChange={(e) => handleNewInputChange('meta', e.target.value)}
+                                />
+                            </div>
+
+                            <div className={styles.formGroup}>
+                                <label>3. Indicador Asociado</label>
+                                <Select
+                                    instanceId="select-nuevo-indicador"
+                                    options={indicadoresOptions}
+                                    value={indicadoresOptions.find(op => op.value === nuevoItem.indicadorValue)}
+                                    onChange={handleNewSelectChange}
+                                    placeholder="Seleccionar..."
+                                    classNamePrefix="rs"
+                                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                                    styles={{
+                                        menuPortal: base => ({ ...base, zIndex: 9999 }),
+                                        control: base => ({ ...base, fontSize: '13px', minHeight: '42px', borderRadius: '12px', border: '2px solid #e2e8f0' })
+                                    }}
+                                />
+                            </div>
+
+                            <div className={styles.formGroup}>
+                                <label>Responsable</label>
+                                <input
+                                    type="text"
+                                    placeholder="Nombre..."
+                                    value={nuevoItem.responsable}
+                                    onChange={(e) => handleNewInputChange('responsable', e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <button className={styles.addButton} onClick={agregarFila} style={{ marginTop: '1rem', width: 'auto' }}>
+                            <Plus size={20} /> Agregar a la Matriz
+                        </button>
+                    </div>
+
+                    {/*  SECCIÓN 2: TABLA DE DATOS */}
                     <div className={styles.tableSection}>
-                        <div className={styles.tableWrapper} style={{ overflow: 'visible' }}> {/* Overflow visible para que el Select se vea bien */}
+                        <div className={styles.tableHeader}>
+                            <h3>Objetivos Definidos</h3>
+                        </div>
+
+                        <div className={styles.tableWrapper}>
                             <table className={styles.table}>
                                 <thead>
                                     <tr>
-                                        <th style={{ width: '30%' }}>1. Objetivo Global</th>
-                                        <th style={{ width: '30%' }}>2. Meta Específica</th>
-                                        <th style={{ width: '20%' }}>3. Indicador Asociado</th>
-                                        <th style={{ width: '15%' }}>Responsable</th>
+                                        <th style={{ width: '30%' }}>Objetivo Global</th>
+                                        <th style={{ width: '30%' }}>Meta Específica</th>
+                                        <th style={{ width: '25%' }}>Indicador</th>
+                                        <th style={{ width: '10%' }}>Responsable</th>
                                         <th style={{ width: '5%' }}></th>
                                     </tr>
                                 </thead>
@@ -181,68 +269,22 @@ export default function MetasObjetivosPage() {
                                         <tr>
                                             <td colSpan="5" className={styles.emptyState}>
                                                 <Target size={48} style={{ margin: '0 auto', display: 'block', opacity: 0.3 }} />
-                                                <p>No hay objetivos definidos.</p>
-                                                <span>Agregue una fila para comenzar.</span>
+                                                <p>No hay objetivos definidos aún.</p>
+                                                <span>Utilice el formulario de arriba para cargar uno nuevo.</span>
                                             </td>
                                         </tr>
                                     ) : (
                                         filas.map((fila) => (
                                             <tr key={fila.id}>
-                                                {/* Columna: Objetivo */}
+                                                {/* Mostramos TEXTO, no inputs */}
+                                                <td>{fila.objetivo}</td>
+                                                <td>{fila.meta}</td>
                                                 <td>
-                                                    <textarea
-                                                        rows={3}
-                                                        className={styles.tableInput} // Reutiliza estilo input transparente
-                                                        style={{ border: '1px solid #ddd', borderRadius: '4px', padding: '8px' }} // Un poco de estilo extra para que parezca editable
-                                                        value={fila.objetivo || ''}
-                                                        onChange={e => handleChange(fila.id, 'objetivo', e.target.value)}
-                                                        placeholder="Describir objetivo global..."
-                                                    />
+                                                    <span className={styles.resultadoBadge} style={{ background: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1' }}>
+                                                        {getIndicadorLabel(fila.indicadorValue)}
+                                                    </span>
                                                 </td>
-
-                                                {/* Columna: Meta */}
-                                                <td>
-                                                    <textarea
-                                                        rows={3}
-                                                        className={styles.tableInput}
-                                                        style={{ border: '1px solid #ddd', borderRadius: '4px', padding: '8px' }}
-                                                        value={fila.meta || ''}
-                                                        onChange={e => handleChange(fila.id, 'meta', e.target.value)}
-                                                        placeholder="Definir meta (cuantitativa/fecha)..."
-                                                    />
-                                                </td>
-
-                                                {/* Columna: Indicador (Select) */}
-                                                <td>
-                                                    <Select
-                                                        instanceId={`select-indicador-${fila.id}`}
-                                                        options={indicadoresOptions}
-                                                        // Buscamos el objeto opción que coincida con el ID guardado
-                                                        value={indicadoresOptions.find(op => op.value === fila.indicadorValue)}
-                                                        onChange={(op) => handleSelectChange(fila.id, op)}
-                                                        placeholder="Seleccionar..."
-                                                        classNamePrefix="rs"
-                                                        menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                                                        styles={{
-                                                            menuPortal: base => ({ ...base, zIndex: 9999 }),
-                                                            control: base => ({ ...base, fontSize: '13px', minHeight: '38px' })
-                                                        }}
-                                                    />
-                                                </td>
-
-                                                {/* Columna: Responsable */}
-                                                <td>
-                                                    <input
-                                                        type="text"
-                                                        className={styles.tableInput}
-                                                        style={{ border: '1px solid #ddd', borderRadius: '4px', padding: '8px', width: '100%' }}
-                                                        value={fila.responsable || ''}
-                                                        onChange={e => handleChange(fila.id, 'responsable', e.target.value)}
-                                                        placeholder="Nombre..."
-                                                    />
-                                                </td>
-
-                                                {/* Acciones */}
+                                                <td>{fila.responsable}</td>
                                                 <td style={{ textAlign: 'center' }}>
                                                     <button
                                                         className={styles.deleteButton}
@@ -258,10 +300,6 @@ export default function MetasObjetivosPage() {
                                 </tbody>
                             </table>
                         </div>
-
-                        <button className={styles.addButton} onClick={agregarFila} style={{ marginTop: '1.5rem' }}>
-                            <Plus size={20} /> Agregar Objetivo
-                        </button>
                     </div>
 
                     {/* BARRA DE ACCIONES INFERIOR */}
@@ -278,7 +316,7 @@ export default function MetasObjetivosPage() {
                             {isGuardando ? (
                                 "Guardando..."
                             ) : (
-                                <><Save size={20} /> Guardar Cambios</>
+                                <><Save size={20} /> Guardar Todo</>
                             )}
                         </button>
 
