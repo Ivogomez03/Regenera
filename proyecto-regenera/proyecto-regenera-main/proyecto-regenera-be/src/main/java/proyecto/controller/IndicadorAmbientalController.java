@@ -32,6 +32,23 @@ public class IndicadorAmbientalController {
         return ResponseEntity.ok(indicadorService.listar());
     }
 
+    @PutMapping("/modificar/{idIndicador}")
+    public ResponseEntity<String> modificar(@PathVariable Long idIndicador,
+            @RequestBody @Valid IndicadorAmbientalCreateRequest req) {
+        Long idUsuario = currentUserService.getCurrentUserId();
+        System.out.println("DEBUG: Intentando modificar indicador con ID Usuario: " + idUsuario);
+
+        return ResponseEntity.ok(indicadorService.modificar(idIndicador, req, idUsuario));
+    }
+
+    @DeleteMapping("/eliminar/{idIndicador}")
+    public ResponseEntity<String> eliminar(@PathVariable Long idIndicador) {
+        Long idUsuario = currentUserService.getCurrentUserId();
+        System.out.println("DEBUG: Intentando eliminar indicador con ID Usuario: " + idUsuario);
+
+        return ResponseEntity.ok(indicadorService.eliminar(idIndicador, idUsuario));
+    }
+
     @PostMapping("/crear")
     public ResponseEntity<IndicadorAmbientalModel> crear(@RequestBody @Valid IndicadorAmbientalCreateRequest req) {
         Long idUsuario = currentUserService.getCurrentUserId();

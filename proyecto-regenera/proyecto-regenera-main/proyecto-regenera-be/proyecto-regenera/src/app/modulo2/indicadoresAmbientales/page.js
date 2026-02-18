@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import indicadoresSchema from "../../lib/validaciones/indicadoresSchema";
-import { Save, BarChart2, FileText, ArrowLeft, Scale } from "lucide-react";
+import { Save, BarChart2, FileText, ArrowLeft, Edit, Delete } from "lucide-react";
 
 
 const TIPOS_INDICADOR = [
@@ -39,6 +39,7 @@ const TIPOS_INDICADOR = [
 export default function IndicadoresPage() {
     const [indicadores, setIndicadores] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [idEditando, setIdEditando] = useState(null);
 
     // Configuración del formulario
     const {
@@ -68,11 +69,24 @@ export default function IndicadoresPage() {
 
     const onSubmit = async (data) => {
         setLoading(true);
+
         try {
-            await axios.post("/api/indicadores-ambientales/crear", data);
-            alert("Indicador registrado correctamente");
-            reset(); // Limpiar formulario
-            fetchIndicadores(); // Actualizar tabla
+            if (idEditando) {
+                const response = await axios.put(`/api/indicadores-ambientales/modificar/${idEditando}`, data);
+                alert(response.data.message || "Indicador modificado correctamente");
+                reset();
+                fetchIndicadores();
+                setIdEditando(null);
+
+            }
+            else {
+
+
+                await axios.post("/api/indicadores-ambientales/crear", data);
+                alert("Indicador registrado correctamente");
+                reset(); // Limpiar formulario
+                fetchIndicadores(); // Actualizar tabla
+            }
         } catch (error) {
             console.error("Error al guardar:", error);
             alert("Error al guardar el indicador");
@@ -80,6 +94,36 @@ export default function IndicadoresPage() {
             setLoading(false);
         }
     };
+
+    const handleModificarFila = (id) => {
+        // Lógica para modificar una fila existente
+        console.log("Modificando fila con ID:", id);
+
+        reset(indicadores.find(ind => ind.idIndicador === id)); // Cargar datos al formulario
+        setIdEditando(id);
+    }
+
+    const handleEliminarFila = async (id) => {
+        // Lógica para eliminar una fila existente
+        console.log("Eliminando fila con ID:", id);
+        // Aquí podrías agregar una confirmación antes de eliminar
+
+        if (confirm("¿Estás seguro de que deseas eliminar este indicador?")) {
+            // Lógica para eliminar el indicador (ej. llamada a API)
+            console.log("Indicador eliminado con ID:", id);
+            // Después de eliminar, recargar la lista de indicadores
+            try {
+                const response = await axios.delete(`/api/indicadores-ambientales/eliminar/${id}`);
+                alert(response.data.message || "Indicador eliminado correctamente");
+                fetchIndicadores();
+            } catch (error) {
+                console.error("Error al eliminar:", error);
+                alert("Error al eliminar el indicador");
+            }
+        }
+
+
+    }
 
     // Función auxiliar para calcular avance visualmente (en %)
     const getAvanceColor = (valor) => {
@@ -186,6 +230,20 @@ export default function IndicadoresPage() {
                                         <input type="text" {...register("metaUnidad")} placeholder="kg, m3, %" />
                                         <p className={styles.error}>{errors.metaUnidad?.message}</p>
                                     </div>
+
+
+                                </div>
+
+                                <div className={styles.row}>
+                                    <div className={styles.formGroup}>
+                                        <label>Sentido del Indicador*</label>
+                                        <select {...register("sentidoIndicador")}>
+                                            <option value="">Seleccione...</option>
+                                            <option value="ASCENDENTE">Ascendente</option>
+                                            <option value="DESCENDENTE">Descendente</option>
+                                        </select>
+                                        <p className={styles.error}>{errors.sentidoIndicador?.message}</p>
+                                    </div>
                                 </div>
 
                                 <div className={styles.formGroup}>
@@ -228,6 +286,7 @@ export default function IndicadoresPage() {
                                         <th>Tipo</th>
                                         <th>Responsable</th>
                                         <th>Fecha Reg.</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -241,6 +300,16 @@ export default function IndicadoresPage() {
                                                 <td>{TIPOS_INDICADOR.find(t => t.value === ind.tipoIndicador)?.label || ind.tipoIndicador}</td>
                                                 <td>{ind.responsableCumplimiento}</td>
                                                 <td>{ind.fechaRegistro}</td>
+                                                <td>
+                                                    <button onClick={() => handleModificarFila(ind.idIndicador)} className={styles.editButton}>
+                                                        <Edit size={20} />
+                                                    </button>
+                                                    <button onClick={() => handleEliminarFila(ind.idIndicador)} className={styles.deleteButton}>
+                                                        <Delete size={20} />
+                                                    </button>
+
+
+                                                </td>
                                             </tr>
                                         ))
                                     ) : (

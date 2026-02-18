@@ -47,6 +47,9 @@ public class IndicadorAmbientalCreateRequest {
     @NotBlank(message = "El objetivo asociado es obligatorio")
     private String objetivoAsociado;
 
+    @NotBlank(message = "El sentido del indicador es obligatorio")
+    private String sentidoIndicador;
+
     @NotNull(message = "El valor de la meta es obligatorio")
     private Double metaValor;
 

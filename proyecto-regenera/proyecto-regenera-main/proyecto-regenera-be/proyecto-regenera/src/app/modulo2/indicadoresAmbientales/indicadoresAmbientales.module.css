@@ -253,6 +253,36 @@
     color: white;
 }
 
+.editButton,
+.deleteButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.3rem;
+
+    color: #007b00;
+
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.deleteButton {
+    color: #e53e3e;
+}
+
+.editButton:hover {
+    transform: scale(1.1);
+    color: #005500;
+}
+
+.deleteButton:hover {
+    transform: scale(1.1);
+    color: #c53030;
+}
+
 /* Barra de progreso */
 .progressBarContainer {
     width: 100%;

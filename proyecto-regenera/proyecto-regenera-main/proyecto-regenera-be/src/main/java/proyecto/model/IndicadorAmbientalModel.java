@@ -2,6 +2,7 @@ package proyecto.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import proyecto.enums.SentidoIndicadorEnum;
 import proyecto.enums.TipoIndicadorEnum;
 
 import java.time.LocalDate;
@@ -20,7 +21,7 @@ public class IndicadorAmbientalModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_indicador")
-    private Integer idIndicador;
+    private Long idIndicador;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -71,6 +72,10 @@ public class IndicadorAmbientalModel {
 
     @Column(name = "meta_unidad")
     private String metaUnidad;
+
+    @Column(name = "sentido_indicador")
+    @Enumerated(EnumType.STRING)
+    private SentidoIndicadorEnum sentidoIndicador;
 
     @Column(name = "responsable_cumplimiento")
     private String responsableCumplimiento; // Persona asignada al cumplimiento del objetivo

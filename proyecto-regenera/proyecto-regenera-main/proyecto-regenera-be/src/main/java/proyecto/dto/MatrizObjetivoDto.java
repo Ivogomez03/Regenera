@@ -16,4 +16,5 @@ public class MatrizObjetivoDto {
     private Long idIndicador; // ID para el select
     private String nombreIndicador; // Label para el select
     private String responsable;
+    private String avanceIndicador; // Campo calculado para mostrar el avance del indicador
 }

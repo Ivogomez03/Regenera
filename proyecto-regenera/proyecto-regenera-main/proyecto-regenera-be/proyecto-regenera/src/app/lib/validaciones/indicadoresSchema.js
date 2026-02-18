@@ -19,7 +19,8 @@ const indicadoresSchema = yup.object().shape({
     respCargaSector: yup.string().required("El sector es obligatorio"),
 
     // --- Integración Objetivos (Matriz) ---
-    objetivo: yup.string().required("El objetivo asociado es obligatorio"),
+    objetivoAsociado: yup.string().required("El objetivo asociado es obligatorio"),
+    sentidoIndicador: yup.string().required("El sentido del indicador es obligatorio"),
     metaValor: yup
         .number()
         .typeError("Debe ser un número")

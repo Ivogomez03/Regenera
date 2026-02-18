@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import lombok.val;
 import proyecto.dto.IndicadorAmbientalDto;
+import proyecto.enums.SentidoIndicadorEnum;
 import proyecto.model.IndicadorAmbientalModel;
 import proyecto.repository.IndicadorAmbientalRepository;
 import proyecto.repository.UsuarioRepository;
@@ -54,11 +56,63 @@ public class IndicadorAmbientalService {
                 .respCargaSector(req.getRespCargaSector())
                 // Datos del objetivo (Matriz)
                 .objetivoAsociado(req.getObjetivoAsociado())
+                .sentidoIndicador(SentidoIndicadorEnum.valueOf(req.getSentidoIndicador()))
+                .metaValor(req.getMetaValor())
                 .metaUnidad(req.getMetaUnidad())
                 .responsableCumplimiento(req.getResponsableCumplimiento())
                 .build();
 
         return indicadorRepository.save(indicador);
+    }
+
+    @Transactional
+    public String modificar(Long idIndicador, IndicadorAmbientalCreateRequest req, Long idUsuario) {
+
+        IndicadorAmbientalModel ind = indicadorRepository.findById(idIndicador)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Indicador no encontrado"));
+
+        if (!ind.getUsuario().getId().equals(idUsuario)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tienes permiso para modificar este indicador");
+        }
+        // Actualizar los campos del indicador
+        ind.setTipoIndicador(req.getTipoIndicador());
+        ind.setValorMedido(req.getValorMedido());
+        ind.setFechaLineaBase(req.getFechaLineaBase());
+        ind.setFechaRegistro(req.getFechaRegistro());
+        ind.setFuenteDato(req.getFuenteDato());
+        ind.setObservaciones(req.getObservaciones());
+        ind.setRespCargaNombre(req.getRespCargaNombre());
+        ind.setRespCargaApellido(req.getRespCargaApellido());
+        ind.setRespCargaCargo(req.getRespCargaCargo());
+        ind.setRespCargaSector(req.getRespCargaSector());
+        ind.setObjetivoAsociado(req.getObjetivoAsociado());
+        ind.setSentidoIndicador(SentidoIndicadorEnum.valueOf(req.getSentidoIndicador()));
+        ind.setMetaValor(req.getMetaValor());
+        ind.setMetaUnidad(req.getMetaUnidad());
+        ind.setResponsableCumplimiento(req.getResponsableCumplimiento());
+
+        indicadorRepository.save(ind);
+        return "Indicador modificado correctamente";
+    }
+
+    @Transactional
+    public String eliminar(Long idIndicador, Long idUsuario) {
+        IndicadorAmbientalModel ind = indicadorRepository.findById(idIndicador)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Indicador no encontrado"));
+
+        if (!ind.getUsuario().getId().equals(idUsuario)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tienes permiso para eliminar este indicador");
+        }
+        indicadorRepository.delete(ind);
+        return "Indicador eliminado correctamente";
     }
 
     @Transactional(readOnly = true)
@@ -68,10 +122,19 @@ public class IndicadorAmbientalService {
     }
 
     @Transactional(readOnly = true)
-    public Double getPorcentajeAvance(Double valorMedido, Double metaValor) {
+    public Double getPorcentajeAvance(Double valorMedido, Double metaValor, SentidoIndicadorEnum sentido) {
         if (metaValor == null || metaValor == 0 || valorMedido == null) {
             return 0.0;
         }
+        if (sentido == SentidoIndicadorEnum.DESCENDENTE) {
+            if (valorMedido <= 0) {
+                return 100.0;
+            }
+            double avance = (metaValor / valorMedido) * 100;
+            avance = Math.min(avance, 100.0);
+            return Math.round(avance * 100.0) / 100.0;
+        }
+
         double avance = (valorMedido / metaValor) * 100;
         return Math.round(avance * 100.0) / 100.0; // Redondeo a 2 decimales
     }
@@ -91,6 +154,7 @@ public class IndicadorAmbientalService {
             dto.setRespCargaCargo(model.getRespCargaCargo());
             dto.setRespCargaSector(model.getRespCargaSector());
             dto.setObjetivoAsociado(model.getObjetivoAsociado());
+            dto.setSentidoIndicador(model.getSentidoIndicador() != null ? model.getSentidoIndicador().name() : null);
             dto.setMetaValor(model.getMetaValor());
             dto.setMetaUnidad(model.getMetaUnidad());
             dto.setResponsableCumplimiento(model.getResponsableCumplimiento());

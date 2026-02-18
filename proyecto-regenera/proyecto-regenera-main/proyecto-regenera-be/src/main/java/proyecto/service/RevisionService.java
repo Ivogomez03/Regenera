@@ -72,7 +72,7 @@ public class RevisionService {
                                                         + i.getMetaUnidad())
                                         .fecha(i.getFechaRegistro())
                                         .estado(indicadorService.getPorcentajeAvance(i.getValorMedido(),
-                                                        i.getMetaValor()) + "% Avance")
+                                                        i.getMetaValor(), i.getSentidoIndicador()) + "% Avance")
                                         .build());
                 });
 

@@ -17,9 +17,11 @@ public class MatrizObjetivoService {
     private final MatrizObjetivoRepository matrizRepo;
     private final UsuarioRepository usuarioRepo;
     private final IndicadorAmbientalRepository indicadorRepo;
+    private final IndicadorAmbientalService indicadorService;
 
     // Listar (GET)
     public List<MatrizObjetivoDto> listarPorUsuario(Long idUsuario) {
+
         return matrizRepo.findByUsuario_Id(idUsuario).stream()
                 .map(i -> MatrizObjetivoDto.builder()
                         .id(i.getIdItemObjetivo())
@@ -33,6 +35,12 @@ public class MatrizObjetivoService {
                                 i.getIndicadorAsociado() != null
                                         ? i.getIndicadorAsociado().getTipoIndicador().toString()
                                         : "")
+                        .avanceIndicador(i.getIndicadorAsociado() != null
+                                ? indicadorRepo.findById(i.getIndicadorAsociado().getIdIndicador())
+                                        .map(ind -> indicadorService.getPorcentajeAvance(ind.getValorMedido(),
+                                                ind.getMetaValor(), ind.getSentidoIndicador()) + "% Avance")
+                                        .orElse("0% Avance")
+                                : "Sin Indicador")
                         .build())
                 .collect(Collectors.toList());
     }
@@ -62,7 +70,7 @@ public class MatrizObjetivoService {
 
             if (dto.getIdIndicador() != null) {
                 // Buscamos el indicador existente
-                IndicadorAmbientalModel ind = indicadorRepo.findById(Math.toIntExact(dto.getIdIndicador()))
+                IndicadorAmbientalModel ind = indicadorRepo.findById(dto.getIdIndicador())
                         .orElse(null);
                 item.setIndicadorAsociado(ind);
             } else {

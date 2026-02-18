@@ -20,6 +20,7 @@ export default function MetasObjetivosPage() {
         objetivo: "",
         meta: "",
         responsable: "",
+        avanceIndicador: "N/A",
         indicadorValue: null
     })
 
@@ -28,39 +29,42 @@ export default function MetasObjetivosPage() {
         const fetchData = async () => {
             setIsLoading(true)
             try {
-                // Cargar Indicadores para el Select
-                const resInd = await axiosClient.get('/api/indicadores-ambientales/listar')
-                let options = []
-                if (Array.isArray(resInd.data)) {
-                    options = resInd.data.map(i => ({
+                const [resInd, resObj] = await Promise.all([
+                    axiosClient.get('/api/indicadores-ambientales/listar'),
+                    axiosClient.get('/api/objetivos')
+                ])
+
+                const options = Array.isArray(resInd.data)
+                    ? resInd.data.map(i => ({
                         value: i.idIndicador,
                         label: i.nombre || i.tipoIndicador || `Indicador ${i.idIndicador}`
                     }))
-                }
+                    : []
+
                 setIndicadoresOptions(options)
 
-                // Cargar Objetivos Guardados
-                const resObj = await axiosClient.get('/api/objetivos')
                 if (Array.isArray(resObj.data)) {
-                    const filasMapeadas = resObj.data.map(item => ({
+                    setFilas(resObj.data.map(item => ({
                         id: item.id,
-                        esNuevo: false, // Ya existe en BD
+                        esNuevo: false,
                         objetivo: item.objetivo,
                         meta: item.meta,
                         responsable: item.responsable,
+                        avanceIndicador: item.avanceIndicador || "N/A",
                         indicadorValue: item.idIndicador
-                    }))
-                    setFilas(filasMapeadas)
+                    })))
                 }
 
             } catch (error) {
-                console.error("Error cargando datos:", error)
+                console.error(error)
             } finally {
                 setIsLoading(false)
             }
         }
+
         fetchData()
     }, [])
+
 
     // 2. Manejar inputs del Formulario de Nuevo Ingreso
     const handleNewInputChange = (campo, valor) => {
@@ -68,14 +72,14 @@ export default function MetasObjetivosPage() {
     }
 
     const handleNewSelectChange = (option) => {
-        setNuevoItem(prev => ({ ...prev, indicadorValue: option ? option.value : null }))
+        setNuevoItem(prev => ({ ...prev, indicadorValue: option }))
     }
 
     // 3. Agregar lo del formulario a la tabla visual
     const agregarFila = () => {
         // Validacion simple
-        if (!nuevoItem.objetivo || !nuevoItem.meta) {
-            alert("Por favor complete al menos el Objetivo y la Meta.")
+        if (!nuevoItem.objetivo || !nuevoItem.meta || !nuevoItem.indicadorValue) {
+            alert("Por favor complete complete todos los datos.")
             return
         }
 
@@ -85,7 +89,8 @@ export default function MetasObjetivosPage() {
             objetivo: nuevoItem.objetivo,
             meta: nuevoItem.meta,
             responsable: nuevoItem.responsable,
-            indicadorValue: nuevoItem.indicadorValue
+            avanceIndicador: "N/A",
+            indicadorValue: nuevoItem.indicadorValue?.value || null
         }
 
         setFilas([...filas, nuevaFila])
@@ -95,6 +100,7 @@ export default function MetasObjetivosPage() {
             objetivo: "",
             meta: "",
             responsable: "",
+            avanceIndicador: "N/A",
             indicadorValue: null
         })
     }
@@ -146,6 +152,7 @@ export default function MetasObjetivosPage() {
                     objetivo: item.objetivo,
                     meta: item.meta,
                     responsable: item.responsable,
+                    avanceIndicador: item.avanceIndicador || "N/A",
                     indicadorValue: item.idIndicador
                 })))
             }
@@ -159,9 +166,17 @@ export default function MetasObjetivosPage() {
         }
     }
 
+
+
     // Helper para obtener etiqueta del indicador
     const getIndicadorLabel = (id) => {
-        const found = indicadoresOptions.find(opt => opt.value === id)
+        console.log("Buscando label para id:", id)
+        console.log("Opciones actuales:", indicadoresOptions)
+        const found = indicadoresOptions.find(
+            opt => Number(opt.value) === Number(id)
+        )
+
+        console.log("Encontrado:", found)
         return found ? found.label : "-"
     }
 
@@ -217,7 +232,7 @@ export default function MetasObjetivosPage() {
                                 <Select
                                     instanceId="select-nuevo-indicador"
                                     options={indicadoresOptions}
-                                    value={indicadoresOptions.find(op => op.value === nuevoItem.indicadorValue)}
+                                    value={nuevoItem.indicadorValue}
                                     onChange={handleNewSelectChange}
                                     placeholder="Seleccionar..."
                                     classNamePrefix="rs"
@@ -258,6 +273,7 @@ export default function MetasObjetivosPage() {
                                         <th style={{ width: '30%' }}>Objetivo Global</th>
                                         <th style={{ width: '30%' }}>Meta Específica</th>
                                         <th style={{ width: '25%' }}>Indicador</th>
+                                        <th style={{ width: '25%' }}>Avance del Indicador</th>
                                         <th style={{ width: '10%' }}>Responsable</th>
                                         <th style={{ width: '5%' }}></th>
                                     </tr>
@@ -283,6 +299,10 @@ export default function MetasObjetivosPage() {
                                                     <span className={styles.resultadoBadge} style={{ background: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1' }}>
                                                         {getIndicadorLabel(fila.indicadorValue)}
                                                     </span>
+                                                </td>
+                                                <td>
+                                                    {fila.avanceIndicador}
+
                                                 </td>
                                                 <td>{fila.responsable}</td>
                                                 <td style={{ textAlign: 'center' }}>

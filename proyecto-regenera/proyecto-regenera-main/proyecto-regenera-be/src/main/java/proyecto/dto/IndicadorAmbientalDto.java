@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class IndicadorAmbientalDto {
-    private Integer idIndicador;
+    private Long idIndicador;
     private String tipoIndicador;
     private Double valorMedido;
     private String fechaLineaBase;
@@ -16,6 +16,7 @@ public class IndicadorAmbientalDto {
     private String respCargaCargo;
     private String respCargaSector;
     private String objetivoAsociado;
+    private String sentidoIndicador;
     private Double metaValor;
     private String metaUnidad;
     private String responsableCumplimiento;

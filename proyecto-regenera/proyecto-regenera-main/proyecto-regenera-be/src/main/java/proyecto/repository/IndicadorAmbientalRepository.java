@@ -7,7 +7,7 @@ import proyecto.model.IndicadorAmbientalModel;
 import java.util.List;
 
 @Repository
-public interface IndicadorAmbientalRepository extends JpaRepository<IndicadorAmbientalModel, Integer> {
+public interface IndicadorAmbientalRepository extends JpaRepository<IndicadorAmbientalModel, Long> {
     // Buscar indicadores por objetivo para armar la matriz de seguimiento
 
     List<IndicadorAmbientalModel> findByUsuario_Id(Long idUsuario);
