@@ -3,34 +3,39 @@ import styles from "./matrizLegal.module.css"
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { yupResolver } from "@hookform/resolvers/yup" // IMPORTANTE AGREGAR ESTO
 import { FileText, Plus, Save, Trash2, Info, Scale, CheckCircle, Printer, BookOpen } from "lucide-react"
+import matrizLegalSchema from "../../lib/validaciones/matrizLegalSchema"
 import axiosClient from "@/app/lib/axiosClient"
 
 export default function MatrizLegalPage() {
-  // Estados para los catálogos
+  // Configuración de React Hook Form
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(matrizLegalSchema),
+    mode: "onSubmit",
+    defaultValues: {
+      fecha: new Date().toISOString().split('T')[0], // Fecha actual por defecto
+    }
+  });
+
+  // Escuchamos los cambios en el selector de Aspecto Ambiental para buscar plantillas
+  const aspectoSeleccionado = watch("idAspectoAmbientalTema");
+
+  // Estados para los catálogos y UI
   const [ambitos, setAmbitos] = useState([])
   const [tipos, setTipos] = useState([])
   const [aspectos, setAspectos] = useState([])
   const [resultados, setResultados] = useState([])
-
-  // Estado para las sugerencias de normativas (plantillas)
   const [normativasSugeridas, setNormativasSugeridas] = useState([])
 
-  // Estado del formulario
-  const [form, setForm] = useState({
-    idAmbito: "",
-    idTipo: "",
-    nro: "",
-    anio: "",
-    fecha: new Date().toISOString().split('T')[0],
-    resena: "",
-    idAspectoAmbientalTema: "",
-    obligacion: "",
-    puntoControl: "",
-    idResultado: "",
-  })
-
-  // Estados de la grilla y UI
   const [filas, setFilas] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [saveMessage, setSaveMessage] = useState("")
@@ -40,7 +45,6 @@ export default function MatrizLegalPage() {
     const fetchMatriz = async () => {
       try {
         const response = await axiosClient.get("/api/matriz-legal")
-
         if (Array.isArray(response.data)) {
           const filasDeBD = response.data.map(f => ({ ...f, esNuevo: false }))
           setFilas(filasDeBD)
@@ -49,11 +53,10 @@ export default function MatrizLegalPage() {
         console.error("Error cargando la matriz legal:", error)
       }
     }
-
     fetchMatriz()
   }, [])
 
-  // 2. Cargar los catálogos (Ambitos, Tipos, Aspectos, Resultados)
+  // 2. Cargar los catálogos
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
@@ -75,119 +78,75 @@ export default function MatrizLegalPage() {
         setIsLoading(false)
       }
     }
-
     fetchData()
   }, [])
 
-  // --- LÓGICA NUEVA: Cambio de Aspecto y Búsqueda de Plantillas ---
-  const handleAspectoChange = async (e) => {
-    const nuevoAspectoId = e.target.value
+  // 3. Buscar sugerencias (Plantillas) cuando cambia el Aspecto
+  useEffect(() => {
+    setNormativasSugeridas([]) // Limpiar anteriores
+    if (!aspectoSeleccionado) return
 
-    // Actualizamos el formulario
-    setForm(prev => ({ ...prev, idAspectoAmbientalTema: nuevoAspectoId }))
-    setNormativasSugeridas([]) // Limpiar sugerencias anteriores
-
-    if (!nuevoAspectoId) return
-
-    // Consultamos al backend las normativas maestras para este aspecto
-    try {
-      const res = await axiosClient.get(`/api/matriz-legal/plantillas/${nuevoAspectoId}`)
-      if (Array.isArray(res.data)) {
-        setNormativasSugeridas(res.data)
+    const fetchPlantillas = async () => {
+      try {
+        const res = await axiosClient.get(`/api/matriz-legal/plantillas/${aspectoSeleccionado}`)
+        if (Array.isArray(res.data)) {
+          setNormativasSugeridas(res.data)
+        }
+      } catch (error) {
+        console.error("Error buscando normativas sugeridas:", error)
       }
-    } catch (error) {
-      console.error("Error buscando normativas sugeridas:", error)
     }
-  }
+    fetchPlantillas()
+  }, [aspectoSeleccionado])
 
-  // --- LÓGICA NUEVA: Selección de una Normativa Sugerida ---
+  // --- Selección de una Normativa Sugerida ---
   const handleNormativaSelect = (e) => {
     const idNormativaSeleccionada = e.target.value
     if (!idNormativaSeleccionada) return
 
-    // Buscar el objeto completo en el array de sugerencias
-    // Nota: Asegúrate de que 'id' es el campo correcto que devuelve tu DTO RequisitoLegalResponse
     const normativa = normativasSugeridas.find(n => n.id == idNormativaSeleccionada)
 
     if (normativa) {
-      // Autocompletar el formulario
-      setForm(prev => ({
-        ...prev,
-        idAmbito: normativa.idAmbito || "",
-        idTipo: normativa.idTipo || "",
-        nro: normativa.numero || "",
-        anio: normativa.anio || "",
-        resena: normativa.resena || "",
-        obligacion: normativa.obligacion || "",
-        // Dejamos vacíos puntoControl y Resultado para que el usuario los complete
-        puntoControl: "",
-        idResultado: ""
-      }))
+      // Usamos setValue para rellenar los inputs automáticamente
+      setValue("idAmbito", normativa.idAmbito || "");
+      setValue("idTipo", normativa.idTipo || "");
+      setValue("nro", normativa.numero || "");
+      setValue("anio", normativa.anio || "");
+      setValue("resena", normativa.resena || "");
+      setValue("obligacion", normativa.obligacion || "");
+      setValue("puntoControl", "");
+      setValue("idResultado", "");
     }
   }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const agregarFila = () => {
-    // Validaciones básicas
-    if (
-      !form.idAmbito ||
-      !form.idTipo ||
-      !form.nro ||
-      !form.anio ||
-      !form.idAspectoAmbientalTema
-    ) {
-      alert("Por favor completá los campos principales (Ámbito, Tipo, Número, Año, Aspecto).")
-      return
-    }
-
+  // --- GUARDAR FILA AL APRETAR AÑADIR (Solo se ejecuta si pasa las validaciones de Yup) ---
+  const onSubmitRow = (data) => {
     try {
-      // Buscar los objetos completos para mostrarlos en la tabla localmente antes de guardar
-      const ambitoObj = ambitos.find((a) => a.idAmbito == form.idAmbito)
-      const tipoObj = tipos.find((t) => t.idTipo == form.idTipo)
-      const aspectoObj = aspectos.find((a) => a.idAspectoAmbientalTema == form.idAspectoAmbientalTema)
-      const resultadoObj = resultados.find((r) => r.idResultado == form.idResultado)
+      // Buscar nombres para mostrarlos visualmente en la tabla
+      const ambitoObj = ambitos.find((a) => a.idAmbito == data.idAmbito)
+      const tipoObj = tipos.find((t) => t.idTipo == data.idTipo)
+      const aspectoObj = aspectos.find((a) => a.idAspectoAmbientalTema == data.idAspectoAmbientalTema)
+      const resultadoObj = resultados.find((r) => r.idResultado == data.idResultado)
 
       const nuevaFila = {
-        id: Date.now(), // ID temporal para React key
+        id: Date.now(),
         esNuevo: true,
-        idAmbito: form.idAmbito,
-        idTipo: form.idTipo,
-        idAspectoAmbientalTema: form.idAspectoAmbientalTema,
-        idResultado: form.idResultado || null, // Puede ser nulo al inicio
-        fecha: form.fecha,
+        ...data, // Pasamos todos los datos (idAmbito, idTipo, fecha, etc.)
+        fecha: data.fecha instanceof Date ? data.fecha.toISOString().split('T')[0] : data.fecha,
+        numero: data.nro, // Renombramos nro a numero para la tabla y backend
+        puntoInspeccion: data.puntoControl, // Renombramos para el backend
+
         // Textos para mostrar en la tabla
         ambito: ambitoObj ? ambitoObj.ambito : "",
         tipo: tipoObj ? tipoObj.tipo : "",
         aspecto: aspectoObj ? aspectoObj.aspectoAmbientalTema : "",
         resultado: resultadoObj ? resultadoObj.resultado : "",
-
-        numero: form.nro,
-        anio: form.anio,
-        obligacion: form.obligacion,
-        puntoInspeccion: form.puntoControl,
-        resena: form.resena
       }
 
-      const newFilas = [...filas, nuevaFila]
-      setFilas(newFilas)
+      setFilas([...filas, nuevaFila])
 
-      // Limpiar formulario
-      setForm({
-        idAmbito: "",
-        idTipo: "",
-        nro: "",
-        anio: "",
-        fecha: form.fecha,
-        resena: "",
-        idAspectoAmbientalTema: "",
-        obligacion: "",
-        puntoControl: "",
-        idResultado: "",
-      })
+      // Limpiar formulario y restablecer fecha por defecto
+      reset({ fecha: new Date().toISOString().split('T')[0] })
       setNormativasSugeridas([])
 
       setSaveMessage("¡Fila agregada a la lista!")
@@ -201,18 +160,15 @@ export default function MatrizLegalPage() {
   const eliminarFila = async (id) => {
     if (!confirm("¿Estás seguro de eliminar esta fila?")) return
 
-    // Si es nuevo (no guardado en BD), solo lo sacamos del estado
     const filaAEliminar = filas.find(f => f.id === id)
     if (filaAEliminar && filaAEliminar.esNuevo) {
       setFilas(filas.filter((f) => f.id !== id))
       return
     }
 
-    // Si ya existe en BD, llamamos a la API
     try {
       await axiosClient.delete(`/api/matriz-legal/${id}`)
-      const newFilas = filas.filter((fila) => fila.id !== id)
-      setFilas(newFilas)
+      setFilas(filas.filter((fila) => fila.id !== id))
 
       setSaveMessage("¡Fila eliminada exitosamente!")
       setTimeout(() => setSaveMessage(""), 3000)
@@ -233,11 +189,10 @@ export default function MatrizLegalPage() {
     setIsLoading(true)
 
     try {
-      // Mapeamos al formato que espera el Backend (RequisitoLegalCreateRequest)
       const datosParaEnviar = filasNuevas.map((fila) => ({
         idAmbito: parseInt(fila.idAmbito, 10),
         idTipo: parseInt(fila.idTipo, 10),
-        idAspectoAmbiental: parseInt(fila.idAspectoAmbientalTema, 10), // Nota: backend espera idAspectoAmbiental
+        idAspectoAmbiental: parseInt(fila.idAspectoAmbientalTema, 10),
         idResultado: fila.idResultado ? parseInt(fila.idResultado, 10) : null,
         fecha: fila.fecha,
         numero: String(fila.numero),
@@ -252,11 +207,9 @@ export default function MatrizLegalPage() {
       setSaveMessage("¡Matriz guardada exitosamente!")
       setTimeout(() => setSaveMessage(""), 3000)
 
-      // Recargamos la matriz para obtener los IDs reales y datos frescos
       const res = await axiosClient.get("/api/matriz-legal");
       if (Array.isArray(res.data)) {
-        const filasActualizadas = res.data.map(f => ({ ...f, esNuevo: false }));
-        setFilas(filasActualizadas);
+        setFilas(res.data.map(f => ({ ...f, esNuevo: false })));
       }
 
     } catch (error) {
@@ -269,10 +222,6 @@ export default function MatrizLegalPage() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handlePrint = () => {
-    window.print()
   }
 
   if (isLoading) {
@@ -296,7 +245,6 @@ export default function MatrizLegalPage() {
 
       <div className={styles.matrizPage}>
         <div className={styles.container}>
-          {/* Header */}
           <div className={styles.pageHeader}>
             <div className={styles.headerIcon}>
               <Scale size={40} />
@@ -305,34 +253,32 @@ export default function MatrizLegalPage() {
             <p>Gestiona y controla el cumplimiento de normativas ambientales</p>
           </div>
 
-          {/* Form Section */}
-          <div className={styles.formSection}>
+          {/* REEMPLAZAMOS EL DIV DEL FORMULARIO POR UN <form onSubmit={handleSubmit}> */}
+          <form className={styles.formSection} onSubmit={handleSubmit(onSubmitRow)}>
             <div className={styles.sectionHeader}>
               <FileText size={20} />
               <h2>Nueva Normativa</h2>
             </div>
 
             <div className={styles.formGrid}>
-
-              {/* 1. SELECCIÓN DE ASPECTO (PRIMERO PARA FILTRAR) */}
+              {/* 1. SELECCIÓN DE ASPECTO */}
               <div className={styles.formGroup} style={{ gridColumn: "1 / -1" }}>
-                <label style={{ fontWeight: "bold", color: "#0369a1" }}>1. Selecciona el Aspecto Ambiental</label>
+                <label style={{ fontWeight: "bold", color: "#0369a1" }}>1. Selecciona el Aspecto Ambiental*</label>
                 <select
-                  name="idAspectoAmbientalTema"
-                  value={form.idAspectoAmbientalTema}
-                  onChange={handleAspectoChange}
+                  {...register("idAspectoAmbientalTema")}
                   style={{ backgroundColor: "#f0f9ff", borderColor: "#0284c7" }}
                 >
                   <option value="">-- Seleccionar Aspecto --</option>
-                  {Array.isArray(aspectos) && aspectos.map((a) => (
+                  {aspectos.map((a) => (
                     <option key={a.idAspectoAmbientalTema} value={a.idAspectoAmbientalTema}>
                       {a.aspectoAmbientalTema}
                     </option>
                   ))}
                 </select>
+                <p style={{ color: "red", fontSize: "0.8rem", margin: 0 }}>{errors.idAspectoAmbientalTema?.message}</p>
               </div>
 
-              {/* 2. SELECTOR DE NORMATIVAS SUGERIDAS (Solo aparece si hay sugerencias) */}
+              {/* 2. SELECTOR DE NORMATIVAS SUGERIDAS */}
               {normativasSugeridas.length > 0 && (
                 <div className={styles.formGroup} style={{ gridColumn: "1 / -1" }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#166534', fontWeight: "bold" }}>
@@ -350,122 +296,85 @@ export default function MatrizLegalPage() {
                 </div>
               )}
 
-              {/* RESTO DE CAMPOS */}
+              {/* RESTO DE CAMPOS CON REGISTER */}
               <div className={styles.formGroup}>
-                <label>Ámbito</label>
-                <select name="idAmbito" value={form.idAmbito} onChange={handleChange}>
+                <label>Ámbito*</label>
+                <select {...register("idAmbito")}>
                   <option value="">Seleccione...</option>
-                  {Array.isArray(ambitos) && ambitos.map((a) => (
+                  {ambitos.map((a) => (
                     <option key={a.idAmbito} value={a.idAmbito}>{a.ambito}</option>
                   ))}
                 </select>
+                <p style={{ color: "red", fontSize: "0.8rem", margin: 0 }}>{errors.idAmbito?.message}</p>
               </div>
 
               <div className={styles.formGroup}>
-                <label>Tipo</label>
-                <select name="idTipo" value={form.idTipo} onChange={handleChange}>
+                <label>Tipo*</label>
+                <select {...register("idTipo")}>
                   <option value="">Seleccione...</option>
-                  {Array.isArray(tipos) && tipos.map((t) => (
+                  {tipos.map((t) => (
                     <option key={t.idTipo} value={t.idTipo}>{t.tipo}</option>
                   ))}
                 </select>
+                <p style={{ color: "red", fontSize: "0.8rem", margin: 0 }}>{errors.idTipo?.message}</p>
               </div>
 
               <div className={styles.formGroup}>
-                <label>Nro</label>
-                <input type="text" name="nro" value={form.nro} onChange={handleChange} placeholder="Ej: 25675" />
+                <label>Nro*</label>
+                <input type="text" {...register("nro")} placeholder="Ej: 25675" />
+                <p style={{ color: "red", fontSize: "0.8rem", margin: 0 }}>{errors.nro?.message}</p>
               </div>
 
               <div className={styles.formGroup}>
-                <label>Año</label>
-                <input type="text" name="anio" value={form.anio} onChange={handleChange} placeholder="Ej: 2002" />
+                <label>Año*</label>
+                <input type="number" {...register("anio")} placeholder="Ej: 2002" />
+                <p style={{ color: "red", fontSize: "0.8rem", margin: 0 }}>{errors.anio?.message}</p>
               </div>
 
               <div className={styles.formGroup}>
-                <label>Fecha Evaluación</label>
-                <input
-                  type="date"
-                  name="fecha"
-                  value={form.fecha}
-                  onChange={handleChange}
-                />
-              </div>
-
-              {/* Reseña ocupa todo el ancho */}
-              <div className={styles.formGroup} style={{ gridColumn: "1 / -1" }}>
-                <label>Reseña / Título</label>
-                <textarea
-                  name="resena"
-                  value={form.resena}
-                  onChange={handleChange}
-                  rows={2}
-                  className={styles.textarea}
-                  placeholder="Breve descripción de la norma..."
-                />
+                <label>Fecha Evaluación*</label>
+                <input type="date" {...register("fecha")} />
+                <p style={{ color: "red", fontSize: "0.8rem", margin: 0 }}>{errors.fecha?.message}</p>
               </div>
 
               <div className={styles.formGroup} style={{ gridColumn: "1 / -1" }}>
-                <label>
-                  Obligación Concreta
-                  <span className={styles.tooltip}>
-                    <Info size={16} className={styles.tooltipIcon} />
-                    <span className={styles.tooltiptext}>
-                      Revisa esta norma e identifica las obligaciones que genera en tu organización
-                    </span>
-                  </span>
-                </label>
-                <textarea
-                  name="obligacion"
-                  value={form.obligacion}
-                  onChange={handleChange}
-                  placeholder="Describe la obligación..."
-                  rows={2}
-                  className={styles.textarea}
-                />
+                <label>Reseña / Título</label>
+                <textarea {...register("resena")} rows={2} className={styles.textarea} placeholder="Breve descripción..." />
+              </div>
+
+              <div className={styles.formGroup} style={{ gridColumn: "1 / -1" }}>
+                <label>Obligación Concreta</label>
+                <textarea {...register("obligacion")} rows={2} className={styles.textarea} placeholder="Describe la obligación..." />
               </div>
 
               <div className={styles.formGroup}>
-                <label>
-                  Punto de Control
-                  <span className={styles.tooltip}>
-                    <Info size={16} className={styles.tooltipIcon} />
-                    <span className={styles.tooltiptext}>
-                      Indica de qué manera verificas el cumplimiento (ej. muestreo, documento, manifiesto)
-                    </span>
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  name="puntoControl"
-                  value={form.puntoControl}
-                  onChange={handleChange}
-                  placeholder="Método de verificación"
-                />
+                <label>Punto de Control</label>
+                <input type="text" {...register("puntoControl")} placeholder="Método de verificación" />
               </div>
 
               <div className={styles.formGroup}>
                 <label>Resultado</label>
-                <select name="idResultado" value={form.idResultado} onChange={handleChange}>
+                <select {...register("idResultado")}>
                   <option value="">Seleccione...</option>
-                  {Array.isArray(resultados) && resultados.map((r) => (
+                  {resultados.map((r) => (
                     <option key={r.idResultado} value={r.idResultado}>{r.resultado}</option>
                   ))}
                 </select>
               </div>
             </div>
 
-            <button className={styles.addButton} onClick={agregarFila}>
+            {/* BOTÓN DE SUBMIT */}
+            <button type="submit" className={styles.addButton}>
               <Plus size={20} />
               Añadir a la Matriz
             </button>
-          </div>
+          </form>
 
-          {/* Table Section */}
+          {/* Table Section (Sin cambios sustanciales, igual al original) */}
           <div className={styles.tableSection}>
             <div className={styles.tableHeader}>
               <h3>Matriz de Normativas ({filas.length})</h3>
             </div>
-
             <div className={styles.tableWrapper}>
               <table className={styles.table}>
                 <thead>
@@ -486,7 +395,7 @@ export default function MatrizLegalPage() {
                 <tbody>
                   {filas.length === 0 ? (
                     <tr>
-                      <td colSpan="10" className={styles.emptyState}>
+                      <td colSpan="11" className={styles.emptyState}>
                         <FileText size={48} />
                         <p>No hay normativas agregadas</p>
                         <span>Selecciona un aspecto y agrega una normativa</span>
@@ -501,7 +410,6 @@ export default function MatrizLegalPage() {
                         <td>{fila.anio}</td>
                         <td>{fila.fecha}</td>
                         <td>{fila.aspecto}</td>
-                        {/* Limitamos el texto largo en la tabla para que no rompa el diseño */}
                         <td title={fila.resena}>
                           {fila.resena && fila.resena.length > 30 ? fila.resena.substring(0, 30) + "..." : fila.resena}
                         </td>
@@ -534,7 +442,7 @@ export default function MatrizLegalPage() {
           {/* Save Button */}
           {filas.length > 0 && (
             <div className={styles.actionBar}>
-              <button className={styles.printButton} onClick={handlePrint}>
+              <button className={styles.printButton} onClick={() => window.print()}>
                 <Printer size={20} />
                 Imprimir Matriz
               </button>

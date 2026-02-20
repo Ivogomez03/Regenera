@@ -3,13 +3,15 @@ package proyecto.dto;
 import lombok.*;
 import proyecto.model.RequisitoLegalModel;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public record RequisitoLegalDto(
 
         Long id,
 
         Long idUsuario,
+
+        LocalDate fecha,
 
         String ambito,
 
@@ -35,6 +37,7 @@ public record RequisitoLegalDto(
         return new RequisitoLegalDto(
                 model.getIdRequisitoLegal(),
                 model.getUsuario().getId(),
+                model.getFecha(),
                 model.getAmbito().getAmbito(),
                 model.getTipo().getTipo(),
                 model.getResultado() != null ? model.getResultado().getResultado() : null,

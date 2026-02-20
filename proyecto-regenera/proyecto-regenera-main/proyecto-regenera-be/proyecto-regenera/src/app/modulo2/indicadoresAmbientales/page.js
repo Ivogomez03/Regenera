@@ -102,7 +102,7 @@ export default function IndicadoresPage() {
         reset(indicadores.find(ind => ind.idIndicador === id)); // Cargar datos al formulario
         setIdEditando(id);
     }
-
+    /*
     const handleEliminarFila = async (id) => {
         // Lógica para eliminar una fila existente
         console.log("Eliminando fila con ID:", id);
@@ -124,7 +124,7 @@ export default function IndicadoresPage() {
 
 
     }
-
+*/
     // Función auxiliar para calcular avance visualmente (en %)
     const getAvanceColor = (valor) => {
         if (valor >= 100) return "green";
@@ -304,9 +304,10 @@ export default function IndicadoresPage() {
                                                     <button onClick={() => handleModificarFila(ind.idIndicador)} className={styles.editButton}>
                                                         <Edit size={20} />
                                                     </button>
+                                                    {/*
                                                     <button onClick={() => handleEliminarFila(ind.idIndicador)} className={styles.deleteButton}>
                                                         <Delete size={20} />
-                                                    </button>
+                                                    </button>*/}
 
 
                                                 </td>

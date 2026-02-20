@@ -1,5 +1,7 @@
 package proyecto.dto;
 
+import java.time.LocalDate;
+
 import lombok.*;
 
 @Getter
@@ -12,6 +14,8 @@ public class MatrizLegalDto {
     private Long idRequisitoLegal;
 
     private String ambito;
+
+    private LocalDate fecha;
 
     private String tipo;
 

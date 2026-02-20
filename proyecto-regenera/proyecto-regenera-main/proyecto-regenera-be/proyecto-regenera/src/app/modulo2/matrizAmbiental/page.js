@@ -237,6 +237,8 @@ export default function MatrizAmbientalPage() {
       .trim();
   }
 
+  /*
+
   const handleAgregarOpcion = async (e, {
     inputValue,
     opciones,
@@ -714,24 +716,7 @@ export default function MatrizAmbientalPage() {
                       <option>Cargando...</option>
                     </select>
                   )}
-                  <button
-                    type="button"
-                    className={styles.plusButton}
-                    onMouseDown={(e) =>
-                      handleAgregarOpcion(e, {
-                        inputValue: inputSector,
-                        opciones: sectores,
-                        setOpciones: setSectores,
-                        setSelected: setSectorSeleccionado,
-                        setInput: setInputSector,
-                        endpoint: "/api/sectores",
-                        idField: "idSector",
-                        labelField: "sector",
-                      })
-                    }
-                  >
-                    <Plus size={18} />
-                  </button>
+
                 </div>
               </div>
 
@@ -761,25 +746,7 @@ export default function MatrizAmbientalPage() {
                       <option>Cargando...</option>
                     </select>
                   )}
-                  <button
-                    type="button"
-                    className={styles.plusButton}
-                    onClick={() =>
-                      handleAgregarOpcion({
-                        inputValue: inputActividad,
-                        opciones: actividades,
-                        setOpciones: setActividades,
-                        setSelected: setActividadSeleccionada,
-                        setInput: setInputActividad,
-                        endpoint: "/api/actividades",
-                        idField: "idActividad",
-                        labelField: "actividad",
-                        extraFields: { idSector: sectorSeleccionado?.value },
-                      })
-                    }
-                  >
-                    <Plus size={18} />
-                  </button>
+
                 </div>
               </div>
 
@@ -855,28 +822,7 @@ export default function MatrizAmbientalPage() {
                       <option>Cargando...</option>
                     </select>
                   )}
-                  <button
-                    type="button"
-                    className={styles.plusButton}
-                    onClick={() =>
-                      handleAgregarOpcion({
-                        inputValue: inputAspecto,
-                        opciones: aspectos,
-                        setOpciones: setAspectos,
-                        setSelected: setAspectoSeleccionado,
-                        setInput: setInputAspecto,
-                        endpoint: "/api/aspectos-ambientales",
-                        idField: "idAspectoAmbiental",
-                        labelField: "aspectoAmbiental",
-                        extraFields: {
-                          idImpactoAmbiental: impactoAmbientalSeleccionado?.value,
-                          idCategoriaAspectoAmbiental: categoriaSeleccionada?.value,
-                        },
-                      })
-                    }
-                  >
-                    <Plus size={18} />
-                  </button>
+
                 </div>
               </div>
 
@@ -906,24 +852,7 @@ export default function MatrizAmbientalPage() {
                       <option>Cargando...</option>
                     </select>
                   )}
-                  <button
-                    type="button"
-                    className={styles.plusButton}
-                    onClick={() =>
-                      handleAgregarOpcion({
-                        inputValue: inputTipoImpacto,
-                        opciones: tipoImpactos,
-                        setOpciones: setTipoImpactos,
-                        setSelected: setTipoImpactoSeleccionado,
-                        setInput: setInputTipoImpacto,
-                        endpoint: "/api/tipos-impacto",
-                        idField: "idTipoImpacto",
-                        labelField: "tipoImpacto",
-                      })
-                    }
-                  >
-                    <Plus size={18} />
-                  </button>
+
                 </div>
               </div>
 
@@ -953,24 +882,7 @@ export default function MatrizAmbientalPage() {
                       <option>Cargando...</option>
                     </select>
                   )}
-                  <button
-                    type="button"
-                    className={styles.plusButton}
-                    onClick={() =>
-                      handleAgregarOpcion({
-                        inputValue: inputCondicion,
-                        opciones: condiciones,
-                        setOpciones: setCondiciones,
-                        setSelected: setCondicionSeleccionada,
-                        setInput: setInputCondicion,
-                        endpoint: "/api/condiciones-impacto",
-                        idField: "idCondicionImpacto",
-                        labelField: "condicionImpacto",
-                      })
-                    }
-                  >
-                    <Plus size={18} />
-                  </button>
+
                 </div>
               </div>
 

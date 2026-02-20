@@ -135,6 +135,9 @@ public class RequisitoLegalService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resultado no encontrado"));
             db.setResultado(resultado);
         }
+        if (req.getFecha() != null) {
+            db.setFecha(req.getFecha());
+        }
 
         if (req.getNumero() != null) {
             db.setNumero(req.getNumero());
