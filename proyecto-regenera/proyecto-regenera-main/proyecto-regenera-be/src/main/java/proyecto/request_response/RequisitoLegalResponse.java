@@ -33,7 +33,7 @@ public class RequisitoLegalResponse {
 
     String resultado;
 
-    Integer idAspecto;
+    Long idAspecto;
 
     LocalDate fecha;
 

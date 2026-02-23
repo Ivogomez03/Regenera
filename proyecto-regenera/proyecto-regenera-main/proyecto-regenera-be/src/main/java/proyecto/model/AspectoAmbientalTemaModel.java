@@ -16,7 +16,7 @@ public class AspectoAmbientalTemaModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_aspecto_ambiental_tema")
-    private Integer idAspectoAmbientalTema;
+    private Long idAspectoAmbientalTema;
 
     @Column(name = "aspecto_ambiental_tema", nullable = false)
     private String aspectoAmbientalTema;

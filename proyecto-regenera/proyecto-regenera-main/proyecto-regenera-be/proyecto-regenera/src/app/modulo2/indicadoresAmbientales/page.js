@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from "react";
-//import axios from "axios"; 
 import axios from "@/app/lib/axiosClient";
 import styles from "./indicadoresAmbientales.module.css";
 import Image from 'next/image';
 import Link from 'next/link';
+import useValidarAutenticacion from "@/app/lib/validaciones/useValidarAutenticacion";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import indicadoresSchema from "../../lib/validaciones/indicadoresSchema";
@@ -37,6 +37,7 @@ const TIPOS_INDICADOR = [
 
 
 export default function IndicadoresPage() {
+    const { isCheckingAuth } = useValidarAutenticacion();
     const [indicadores, setIndicadores] = useState([]);
     const [loading, setLoading] = useState(false);
     const [idEditando, setIdEditando] = useState(null);
@@ -54,8 +55,18 @@ export default function IndicadoresPage() {
 
     // Cargar indicadores al iniciar
     useEffect(() => {
+        if (isCheckingAuth) return;
         fetchIndicadores();
-    }, []);
+    }, [isCheckingAuth]);
+
+    if (isCheckingAuth) {
+        return (
+            <div className={styles.loaderContainer}>
+                <img src="/icons8-hilandero.gif" alt="Cargando" className={styles.loaderImage} />
+                <p className={styles.loaderText}>Cargando...</p>
+            </div>
+        );
+    }
 
     const fetchIndicadores = async () => {
         try {
@@ -107,7 +118,7 @@ export default function IndicadoresPage() {
         // Lógica para eliminar una fila existente
         console.log("Eliminando fila con ID:", id);
         // Aquí podrías agregar una confirmación antes de eliminar
-
+ 
         if (confirm("¿Estás seguro de que deseas eliminar este indicador?")) {
             // Lógica para eliminar el indicador (ej. llamada a API)
             console.log("Indicador eliminado con ID:", id);
@@ -121,8 +132,8 @@ export default function IndicadoresPage() {
                 alert("Error al eliminar el indicador");
             }
         }
-
-
+ 
+ 
     }
 */
     // Función auxiliar para calcular avance visualmente (en %)

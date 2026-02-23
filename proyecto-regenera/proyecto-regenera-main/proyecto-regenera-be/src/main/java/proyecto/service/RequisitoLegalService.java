@@ -38,8 +38,8 @@ public class RequisitoLegalService {
 
     }
 
-    public RequisitoLegalModel mustBeMine(Long idRequisitoLegal, String email) {
-        return requisitoLegalRepo.findByIdRequisitoLegalAndUsuario_Email(idRequisitoLegal, email)
+    public RequisitoLegalModel mustBeMine(Long idRequisitoLegal, Long idUsuario) {
+        return requisitoLegalRepo.findByIdRequisitoLegalAndUsuario_Id(idRequisitoLegal, idUsuario)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Sin permiso o no existe"));
     }
 
@@ -75,7 +75,7 @@ public class RequisitoLegalService {
                             HttpStatus.NOT_FOUND,
                             "Tipo no encontrado"));
 
-            var aspecto = aspectoTemaRepo.findById(Math.toIntExact(req.getIdAspectoAmbiental()))
+            var aspecto = aspectoTemaRepo.findById(req.getIdAspectoAmbiental())
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND,
                             "Aspecto ambiental no encontrado"));
@@ -109,8 +109,9 @@ public class RequisitoLegalService {
     }
 
     @Transactional
-    public RequisitoLegalDto actualizar(Long idRequisitoLegal, RequisitoLegalCreateRequest req, String email) {
-        var db = mustBeMine(idRequisitoLegal, email);
+    public RequisitoLegalDto actualizar(Long idRequisitoLegal, RequisitoLegalCreateRequest req, Long idUsuario) {
+
+        var db = mustBeMine(idRequisitoLegal, idUsuario);
 
         if (req.getIdAmbito() != null) {
             var ambito = ambitoRepo.findById(req.getIdAmbito())
@@ -125,7 +126,7 @@ public class RequisitoLegalService {
         }
 
         if (req.getIdAspectoAmbiental() != null) {
-            var aspecto = aspectoTemaRepo.findById(Math.toIntExact(req.getIdAspectoAmbiental()))
+            var aspecto = aspectoTemaRepo.findById(req.getIdAspectoAmbiental())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aspecto no encontrado"));
             db.setAspecto(aspecto);
         }
@@ -163,13 +164,13 @@ public class RequisitoLegalService {
     }
 
     @Transactional
-    public void eliminar(Long idRequisitoLegal, String email) {
-        var db = mustBeMine(idRequisitoLegal, email);
+    public void eliminar(Long idRequisitoLegal, Long idUsuario) {
+        var db = mustBeMine(idRequisitoLegal, idUsuario);
         requisitoLegalRepo.delete(db);
     }
 
-    public RequisitoLegalModel obtener(Long idRequisitoLegal, String email) {
-        return mustBeMine(idRequisitoLegal, email);
+    public RequisitoLegalModel obtener(Long idRequisitoLegal, Long idUsuario) {
+        return mustBeMine(idRequisitoLegal, idUsuario);
     }
 
     public List<RequisitoLegalDto> listar(String email) {

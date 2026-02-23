@@ -3,13 +3,15 @@ import styles from "./matrizLegal.module.css"
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
+import useValidarAutenticacion from "@/app/lib/validaciones/useValidarAutenticacion"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup" // IMPORTANTE AGREGAR ESTO
-import { FileText, Plus, Save, Trash2, Info, Scale, CheckCircle, Printer, BookOpen } from "lucide-react"
+import { FileText, Plus, Save, Trash2, Info, Scale, CheckCircle, Printer, BookOpen, Edit } from "lucide-react"
 import matrizLegalSchema from "../../lib/validaciones/matrizLegalSchema"
 import axiosClient from "@/app/lib/axiosClient"
 
 export default function MatrizLegalPage() {
+  const { isCheckingAuth } = useValidarAutenticacion();
   // Configuración de React Hook Form
   const {
     register,
@@ -26,6 +28,8 @@ export default function MatrizLegalPage() {
     }
   });
 
+  // Estado para controlar qué fila se está editando 
+  const [idEditando, setIdEditando] = useState(null)
   // Escuchamos los cambios en el selector de Aspecto Ambiental para buscar plantillas
   const aspectoSeleccionado = watch("idAspectoAmbientalTema");
 
@@ -42,6 +46,7 @@ export default function MatrizLegalPage() {
 
   // 1. Cargar las filas existentes de la Matriz del usuario
   useEffect(() => {
+    if (isCheckingAuth) return;
     const fetchMatriz = async () => {
       try {
         const response = await axiosClient.get("/api/matriz-legal")
@@ -54,10 +59,12 @@ export default function MatrizLegalPage() {
       }
     }
     fetchMatriz()
-  }, [])
+  }, [isCheckingAuth])
+
 
   // 2. Cargar los catálogos
   useEffect(() => {
+    if (isCheckingAuth) return;
     const fetchData = async () => {
       setIsLoading(true)
       try {
@@ -79,10 +86,11 @@ export default function MatrizLegalPage() {
       }
     }
     fetchData()
-  }, [])
+  }, [isCheckingAuth])
 
   // 3. Buscar sugerencias (Plantillas) cuando cambia el Aspecto
   useEffect(() => {
+    if (isCheckingAuth) return;
     setNormativasSugeridas([]) // Limpiar anteriores
     if (!aspectoSeleccionado) return
 
@@ -97,9 +105,40 @@ export default function MatrizLegalPage() {
       }
     }
     fetchPlantillas()
-  }, [aspectoSeleccionado])
+  }, [aspectoSeleccionado, isCheckingAuth])
 
-  // --- Selección de una Normativa Sugerida ---
+  if (isCheckingAuth) {
+    return (
+      <div className={styles.loaderContainer}>
+        <img src="/icons8-hilandero.gif" alt="Cargando" className={styles.loaderImage} />
+        <p className={styles.loaderText}>Cargando...</p>
+      </div>
+    );
+  }
+
+
+  const handleModificarFila = (id) => {
+    const filaAModificar = filas.find(f => f.id === id)
+    console.log(filaAModificar)
+    if (!filaAModificar) return
+
+    reset({
+      idAspectoAmbientalTema: filaAModificar.idAspectoAmbientalTema ? String(filaAModificar.idAspectoAmbientalTema) : "",
+      idAmbito: filaAModificar.idAmbito ? String(filaAModificar.idAmbito) : "",
+      idTipo: filaAModificar.idTipo ? String(filaAModificar.idTipo) : "",
+      idResultado: filaAModificar.idResultado ? String(filaAModificar.idResultado) : "",
+      nro: filaAModificar.numero || "",
+      anio: filaAModificar.anio || "",
+      fecha: filaAModificar.fecha || "",
+      resena: filaAModificar.resena || "",
+      obligacion: filaAModificar.obligacion || "",
+      puntoControl: filaAModificar.puntoInspeccion || ""
+    })
+
+    setIdEditando(id)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const handleNormativaSelect = (e) => {
     const idNormativaSeleccionada = e.target.value
     if (!idNormativaSeleccionada) return
@@ -107,9 +146,8 @@ export default function MatrizLegalPage() {
     const normativa = normativasSugeridas.find(n => n.id == idNormativaSeleccionada)
 
     if (normativa) {
-      // Usamos setValue para rellenar los inputs automáticamente
-      setValue("idAmbito", normativa.idAmbito || "");
-      setValue("idTipo", normativa.idTipo || "");
+      setValue("idAmbito", normativa.idAmbito ? String(normativa.idAmbito) : "");
+      setValue("idTipo", normativa.idTipo ? String(normativa.idTipo) : "");
       setValue("nro", normativa.numero || "");
       setValue("anio", normativa.anio || "");
       setValue("resena", normativa.resena || "");
@@ -119,41 +157,78 @@ export default function MatrizLegalPage() {
     }
   }
 
-  // --- GUARDAR FILA AL APRETAR AÑADIR (Solo se ejecuta si pasa las validaciones de Yup) ---
-  const onSubmitRow = (data) => {
+  // Inserta la fila en la matriz, si esta editando ejecuta un put, sino solo la agrega al estado para luego guardar todas las nuevas juntas
+  const onSubmitRow = async (data) => {
     try {
-      // Buscar nombres para mostrarlos visualmente en la tabla
       const ambitoObj = ambitos.find((a) => a.idAmbito == data.idAmbito)
       const tipoObj = tipos.find((t) => t.idTipo == data.idTipo)
       const aspectoObj = aspectos.find((a) => a.idAspectoAmbientalTema == data.idAspectoAmbientalTema)
       const resultadoObj = resultados.find((r) => r.idResultado == data.idResultado)
 
-      const nuevaFila = {
-        id: Date.now(),
-        esNuevo: true,
-        ...data, // Pasamos todos los datos (idAmbito, idTipo, fecha, etc.)
-        fecha: data.fecha instanceof Date ? data.fecha.toISOString().split('T')[0] : data.fecha,
-        numero: data.nro, // Renombramos nro a numero para la tabla y backend
-        puntoInspeccion: data.puntoControl, // Renombramos para el backend
+      const fechaParseada = data.fecha instanceof Date ? data.fecha.toISOString().split('T')[0] : data.fecha;
 
-        // Textos para mostrar en la tabla
-        ambito: ambitoObj ? ambitoObj.ambito : "",
-        tipo: tipoObj ? tipoObj.tipo : "",
-        aspecto: aspectoObj ? aspectoObj.aspectoAmbientalTema : "",
-        resultado: resultadoObj ? resultadoObj.resultado : "",
+      if (idEditando) {
+        // Construir payload para el backend
+        const payloadUpdate = {
+          idAmbito: parseInt(data.idAmbito, 10),
+          idTipo: parseInt(data.idTipo, 10),
+          idAspectoAmbiental: parseInt(data.idAspectoAmbientalTema, 10),
+          idResultado: data.idResultado ? parseInt(data.idResultado, 10) : null,
+          fecha: fechaParseada,
+          numero: String(data.nro),
+          anio: parseInt(data.anio, 10),
+          obligacion: String(data.obligacion),
+          puntoInspeccion: String(data.puntoControl),
+          resena: String(data.resena || "")
+        }
+
+        // Ejecutar llamada PUT al backend
+        await axiosClient.put(`/api/matriz-legal/${idEditando}`, payloadUpdate)
+
+        // Actualizar grilla local
+        setFilas(filas.map(fila => {
+          if (fila.id === idEditando) {
+            return {
+              ...fila,
+              ...data,
+              fecha: fechaParseada,
+              numero: data.nro,
+              puntoInspeccion: data.puntoControl,
+              ambito: ambitoObj ? ambitoObj.ambito : "",
+              tipo: tipoObj ? tipoObj.tipo : "",
+              aspecto: aspectoObj ? aspectoObj.aspectoAmbientalTema : "",
+              resultado: resultadoObj ? resultadoObj.resultado : "",
+            }
+          }
+          return fila
+        }))
+
+        setIdEditando(null)
+        setSaveMessage("Fila actualizada en la base de datos")
+      } else {
+        const nuevaFila = {
+          id: Date.now(),
+          esNuevo: true,
+          ...data,
+          fecha: fechaParseada,
+          numero: data.nro,
+          puntoInspeccion: data.puntoControl,
+          ambito: ambitoObj ? ambitoObj.ambito : "",
+          tipo: tipoObj ? tipoObj.tipo : "",
+          aspecto: aspectoObj ? aspectoObj.aspectoAmbientalTema : "",
+          resultado: resultadoObj ? resultadoObj.resultado : "",
+        }
+        setFilas([...filas, nuevaFila])
+        setSaveMessage("Fila agregada a la lista")
       }
 
-      setFilas([...filas, nuevaFila])
-
-      // Limpiar formulario y restablecer fecha por defecto
       reset({ fecha: new Date().toISOString().split('T')[0] })
       setNormativasSugeridas([])
-
-      setSaveMessage("¡Fila agregada a la lista!")
       setTimeout(() => setSaveMessage(""), 3000)
+
     } catch (error) {
       console.error("Error saving row:", error)
-      alert("Error al agregar la fila.")
+      alert("Error al procesar la fila.")
     }
   }
 
@@ -177,6 +252,9 @@ export default function MatrizLegalPage() {
       alert("Error al eliminar la fila.")
     }
   }
+
+
+
 
   const guardarFilas = async () => {
     const filasNuevas = filas.filter((fila) => fila.esNuevo === true)
@@ -364,10 +442,25 @@ export default function MatrizLegalPage() {
             </div>
 
             {/* BOTÓN DE SUBMIT */}
-            <button type="submit" className={styles.addButton}>
-              <Plus size={20} />
-              Añadir a la Matriz
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button type="submit" className={styles.addButton}>
+                {idEditando ? <Save size={20} /> : <Plus size={20} />}
+                {idEditando ? "Guardar Cambios" : "Añadir a la Matriz"}
+              </button>
+
+              {idEditando && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIdEditando(null);
+                    reset({ fecha: new Date().toISOString().split('T')[0] });
+                  }}
+                  style={{ backgroundColor: '#64748b', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  Cancelar
+                </button>
+              )}
+            </div>
           </form>
 
           {/* Table Section (Sin cambios sustanciales, igual al original) */}
@@ -423,6 +516,15 @@ export default function MatrizLegalPage() {
                           </span>
                         </td>
                         <td>
+                          <button
+                            className={styles.editButton}
+                            type="button"
+                            onClick={() => handleModificarFila(fila.id)}
+                            title="Editar"
+
+                          >
+                            <Edit size={18} />
+                          </button>
                           <button
                             className={styles.deleteButton}
                             onClick={() => eliminarFila(fila.id)}

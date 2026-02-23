@@ -3,16 +3,21 @@ import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Eye, FileText, Scale, Activity, Calendar, Search, FolderClosed } from "lucide-react"
-
+import useValidarAutenticacion from "@/app/lib/validaciones/useValidarAutenticacion"
 import axiosClient from "@/app/lib/axiosClient"
 import styles from "./revisiones.module.css" // Definir estilos similares a tus otros módulos
 
 export default function RevisionesPage() {
+    const { isCheckingAuth } = useValidarAutenticacion();
+
+
+
     const [historial, setHistorial] = useState([])
     const [loading, setLoading] = useState(true)
     const [filtro, setFiltro] = useState("")
 
     useEffect(() => {
+        if (isCheckingAuth) return;
         const fetchRevisiones = async () => {
             try {
                 const res = await axiosClient.get("/api/revisiones")
@@ -24,7 +29,16 @@ export default function RevisionesPage() {
             }
         }
         fetchRevisiones()
-    }, [])
+    }, [isCheckingAuth])
+
+    if (isCheckingAuth) {
+        return (
+            <div className={styles.loaderContainer}>
+                <img src="/icons8-hilandero.gif" alt="Cargando" className={styles.loaderImage} />
+                <p className={styles.loaderText}>Cargando...</p>
+            </div>
+        );
+    }
 
     const getIcono = (tipo) => {
         switch (tipo) {

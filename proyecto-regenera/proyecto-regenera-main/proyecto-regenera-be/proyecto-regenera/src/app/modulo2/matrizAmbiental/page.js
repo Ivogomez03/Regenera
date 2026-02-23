@@ -5,14 +5,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from "react"
 import { FileText, Plus, Save, Check, Trash2, Building2, Calendar, Info, Printer } from "lucide-react"
-//import axios from "axios";
 import Select from "react-select";
 import "./matrizAmbiental.css";
+import useValidarAutenticacion from "@/app/lib/validaciones/useValidarAutenticacion";
 import axiosClient from "@/app/lib/axiosClient"
 import { useSearchParams } from 'next/navigation'
 
 
 export default function MatrizAmbientalPage() {
+  const { isCheckingAuth } = useValidarAutenticacion();
   const searchParams = useSearchParams()
   const formularioId = searchParams.get('id');
 
@@ -84,8 +85,10 @@ export default function MatrizAmbientalPage() {
   });
 
   useEffect(() => {
+    if (isCheckingAuth) return;
     setIsClient(true);
-  }, []);
+  }, [isCheckingAuth]);
+
 
 
 
@@ -154,6 +157,7 @@ export default function MatrizAmbientalPage() {
       }
     } catch (error) {
       console.error("Error cargando grillas del usuario:", error);
+
     } finally {
       setIsLoading(false);
     }
@@ -161,11 +165,13 @@ export default function MatrizAmbientalPage() {
 
 
   useEffect(() => {
+    if (isCheckingAuth) return;
     cargarDatosUsuario();
-  }, []);
+  }, [isCheckingAuth]);
 
   // CARGA INICIAL DE DATOS
   useEffect(() => {
+    if (isCheckingAuth) return;
     const fetchData = async () => {
       setIsLoading(true);
       try {
@@ -203,8 +209,15 @@ export default function MatrizAmbientalPage() {
     };
 
     fetchData();
-  }, []);
-
+  }, [isCheckingAuth]);
+  if (isCheckingAuth) {
+    return (
+      <div className={styles.loaderContainer}>
+        <img src="/icons8-hilandero.gif" alt="Cargando" className={styles.loaderImage} />
+        <p className={styles.loaderText}>Cargando...</p>
+      </div>
+    );
+  }
 
 
   const handleLogoChange = (e) => {

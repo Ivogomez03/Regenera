@@ -12,7 +12,7 @@ public interface RequisitoLegalRepository extends JpaRepository<RequisitoLegalMo
     @Query("SELECT DISTINCT rl.anio FROM RequisitoLegalModel rl ORDER BY rl.anio DESC")
     List<Integer> findDistinctAniosDesc();
 
-    Optional<RequisitoLegalModel> findByIdRequisitoLegalAndUsuario_Email(Long idRequisitoLegal, String email);
+    Optional<RequisitoLegalModel> findByIdRequisitoLegalAndUsuario_Id(Long idRequisitoLegal, Long idUsuario);
 
     List<RequisitoLegalModel> findByUsuario_Email(String email);
 

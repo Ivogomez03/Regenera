@@ -28,7 +28,7 @@ public class AspectoAmbientalTemaController {
     }
 
     @GetMapping("/{id:\\d+}")
-    public ResponseEntity<AspectoAmbientalTemaModel> get(@PathVariable Integer id) {
+    public ResponseEntity<AspectoAmbientalTemaModel> get(@PathVariable Long id) {
         return ResponseEntity.ok(aspectoTemaService.get(id));
     }
 
@@ -38,13 +38,13 @@ public class AspectoAmbientalTemaController {
     }
 
     @PutMapping("/{id:\\d+}")
-    public ResponseEntity<AspectoAmbientalTemaModel> update(@PathVariable Integer id,
+    public ResponseEntity<AspectoAmbientalTemaModel> update(@PathVariable Long id,
             @RequestBody @Valid AspectoAmbientalTemaUpdateRequest req) {
         return ResponseEntity.ok(aspectoTemaService.update(id, req));
     }
 
     @DeleteMapping("/{id:\\d+}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         aspectoTemaService.delete(id);
         return ResponseEntity.noContent().build();
     }

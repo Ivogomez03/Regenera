@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 //import axios from "axios";
+import useValidarAutenticacion from "../lib/validaciones/useValidarAutenticacion";
 import axios from "@/app/lib/axiosClient";
 import styles from "./modulo1.module.css";
 import Image from 'next/image';
@@ -13,20 +14,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import modulo1Schema from '../lib/validaciones/modulo1Schema';
 
 export default function Modulo1Page() {
-    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+    const { isCheckingAuth } = useValidarAutenticacion();
     const [provincias, setProvincias] = useState([]);
     const [localidades, setLocalidades] = useState([]);
     const [codigos, setCodigos] = useState([]);
     const router = useRouter();
 
-    useEffect(() => {
-        const auth = localStorage.getItem("auth");
-        if (!auth) {
-            router.push("/login");
-        } else {
-            setIsCheckingAuth(false);
-        }
-    }, [router]);
 
 
     const [form, setForm] = useState({
@@ -106,26 +99,12 @@ export default function Modulo1Page() {
     };
 
     useEffect(() => {
-        const storedAuth = localStorage.getItem('auth');
-        let config = {};
-
-        if (storedAuth) {
-            try {
-                const parsedAuth = JSON.parse(storedAuth);
-                if (parsedAuth.accessToken) {
-                    config = {
-                        headers: { Authorization: `Bearer ${parsedAuth.accessToken}` }
-                    };
-                }
-            } catch (error) {
-                console.error("Error al leer el token", error);
-            }
-        }
+        if (isCheckingAuth) return;
 
         Promise.all([
-            axios.get("/api/provincias", config),
-            axios.get("/api/localidades", config),
-            axios.get("/api/rubro-industrial", config)
+            axios.get("/api/provincias"),
+            axios.get("/api/localidades"),
+            axios.get("/api/rubro-industrial")
         ])
             .then(([resProvincias, resLocalidades, resCodigos]) => {
                 console.log("Datos cargados correctamente");
@@ -137,7 +116,7 @@ export default function Modulo1Page() {
                 console.error("Error al cargar los datos maestros:", error);
             });
 
-    }, []);
+    }, [isCheckingAuth]);
 
     if (isCheckingAuth) {
         return (
@@ -151,17 +130,7 @@ export default function Modulo1Page() {
 
     const onSubmitValidated = async (data) => {
         try {
-            const storedAuth = localStorage.getItem('auth');
-            let config = {};
 
-            if (storedAuth) {
-                const parsedAuth = JSON.parse(storedAuth);
-                if (parsedAuth.accessToken) {
-                    config = {
-                        headers: { Authorization: `Bearer ${parsedAuth.accessToken}` }
-                    };
-                }
-            }
 
             const { idProvincia, ...rest } = form;
             const dataToSend = {
@@ -170,7 +139,7 @@ export default function Modulo1Page() {
                 idRubroIndustrial: Number(form.idRubroIndustrial) || null,
             };
 
-            const response = await axios.post("/api/institucion", dataToSend, config);
+            const response = await axios.post("/api/institucion", dataToSend);
             alert("Datos registrados correctamente");
 
             setForm({

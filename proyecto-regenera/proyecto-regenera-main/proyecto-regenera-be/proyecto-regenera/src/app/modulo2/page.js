@@ -3,22 +3,11 @@
 import Link from 'next/link';
 import styles from "./modulo2.module.css";
 import Image from 'next/image';
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { FileText, Scale, TrendingUp, Target, FileChartColumnIncreasing } from "lucide-react"
+import { FileText, Scale, TrendingUp, Target, FileChartColumnIncreasing, LayoutDashboardIcon } from "lucide-react"
+import useValidarAutenticacion from '../lib/validaciones/useValidarAutenticacion';
 
 export default function Modulo2Page() {
-    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-    const router = useRouter();
-
-    useEffect(() => {
-        const auth = localStorage.getItem("auth");
-        if (!auth) {
-            router.push("/login");
-        } else {
-            setIsCheckingAuth(false);
-        }
-    }, [router]);
+    const { isCheckingAuth } = useValidarAutenticacion();
 
     if (isCheckingAuth) {
         return (
@@ -27,8 +16,8 @@ export default function Modulo2Page() {
                 <p className={styles.loaderText}>Cargando...</p>
             </div>
         );
-
     }
+
 
     const modules = [
         {
@@ -65,6 +54,13 @@ export default function Modulo2Page() {
             icon: Target,
             description: "Revisa y audita el sistema ambiental",
             color: "blue",
+        },
+        {
+            title: "Dashboard",
+            href: "/modulo2/dashboard",
+            icon: LayoutDashboardIcon,
+            description: "Visualiza el desempeño de tus indicadores ambientales",
+            color: "green",
         }
 
     ]

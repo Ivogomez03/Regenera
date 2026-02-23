@@ -51,7 +51,7 @@ public class RequisitoLegalController {
             @PathVariable Long id,
             @RequestBody RequisitoLegalCreateRequest req) {
 
-        var actualizado = service.actualizar(id, req, currentUserService.getUsername());
+        var actualizado = service.actualizar(id, req, currentUserService.getCurrentUserId());
         return ResponseEntity.ok(actualizado);
     }
 
@@ -59,7 +59,7 @@ public class RequisitoLegalController {
     public ResponseEntity<Void> eliminar(
             @PathVariable Long id) {
 
-        service.eliminar(id, currentUserService.getUsername());
+        service.eliminar(id, currentUserService.getCurrentUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -67,7 +67,7 @@ public class RequisitoLegalController {
     public RequisitoLegalDto obtener(
             @PathVariable Long id) {
 
-        return RequisitoLegalDto.of(service.obtener(id, currentUserService.getUsername()));
+        return RequisitoLegalDto.of(service.obtener(id, currentUserService.getCurrentUserId()));
     }
 
     @GetMapping

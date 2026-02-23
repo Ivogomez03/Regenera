@@ -168,16 +168,6 @@ export default function Home() {
                 y tus requisitos legales. Definí objetivos, metas e indicadores para mejorar el desempeño
                 ambiental de tu organización.</p>
             </Link>
-
-            <Link href="/modulo3" className={styles.bentoCard}>
-              <img src="/imagen 4.png" alt="Monitoreo e indicadores ambientales" />
-              <h3>Informes y reportes automáticos</h3>
-              <p>Medí, <strong>registrá</strong> y <strong>analizá</strong> tus
-                indicadores ambientales clave. Detectá tendencias,{" "}
-                <strong>gestioná</strong> mejor tus recursos y{" "}
-                <strong>fortalecé</strong> tu desempeño ambiental con visualizaciones
-                claras y alertas tempranas.</p>
-            </Link>
           </div>
         </div>
       </section>

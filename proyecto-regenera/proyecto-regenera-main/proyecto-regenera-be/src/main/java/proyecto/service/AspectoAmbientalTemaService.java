@@ -21,7 +21,7 @@ public class AspectoAmbientalTemaService {
         return aspectoTemaRepo.findAll();
     }
 
-    public AspectoAmbientalTemaModel get(Integer id) {
+    public AspectoAmbientalTemaModel get(Long id) {
 
         return aspectoTemaRepo.findById(id).orElseThrow();
     }
@@ -37,7 +37,7 @@ public class AspectoAmbientalTemaService {
     }
 
     @Transactional
-    public AspectoAmbientalTemaModel update(Integer id, AspectoAmbientalTemaUpdateRequest req) {
+    public AspectoAmbientalTemaModel update(Long id, AspectoAmbientalTemaUpdateRequest req) {
         var db = aspectoTemaRepo.findById(id).orElseThrow();
 
         if (req.aspectoAmbientalTema() != null) {
@@ -50,7 +50,7 @@ public class AspectoAmbientalTemaService {
     }
 
     @Transactional
-    public void delete(Integer id) {
+    public void delete(Long id) {
         if (!aspectoTemaRepo.existsById(id)) {
             throw new jakarta.persistence.EntityNotFoundException("Aspecto no existe: " + id);
         }

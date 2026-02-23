@@ -3,11 +3,15 @@ import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import Select from "react-select"
+import { useRouter } from "next/navigation"
 import { Target, Plus, Save, Trash2, CheckCircle, Printer } from "lucide-react"
+import useValidarAutenticacion from "@/app/lib/validaciones/useValidarAutenticacion"
 import axiosClient from "@/app/lib/axiosClient"
 import styles from "./metasObjetivos.module.css"
 
 export default function MetasObjetivosPage() {
+    const { isCheckingAuth } = useValidarAutenticacion();
+
 
     const [filas, setFilas] = useState([])
     const [indicadoresOptions, setIndicadoresOptions] = useState([])
@@ -26,6 +30,7 @@ export default function MetasObjetivosPage() {
 
     // 1. Carga inicial de datos
     useEffect(() => {
+        if (isCheckingAuth) return;
         const fetchData = async () => {
             setIsLoading(true)
             try {
@@ -63,8 +68,15 @@ export default function MetasObjetivosPage() {
         }
 
         fetchData()
-    }, [])
-
+    }, [isCheckingAuth])
+    if (isCheckingAuth) {
+        return (
+            <div className={styles.loaderContainer}>
+                <img src="/icons8-hilandero.gif" alt="Cargando" className={styles.loaderImage} />
+                <p className={styles.loaderText}>Cargando...</p>
+            </div>
+        );
+    }
 
     // 2. Manejar inputs del Formulario de Nuevo Ingreso
     const handleNewInputChange = (campo, valor) => {

@@ -1,0 +1,181 @@
+.main {
+    min-height: 100vh;
+    position: relative;
+    background-color: #f8fafc;
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #334155;
+}
+
+.backgroundPattern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+    background-size: 30px 30px;
+    opacity: 0.4;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.topHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 50;
+    box-sizing: border-box;
+}
+
+.backLink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #145551;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.backLink:hover {
+    opacity: 0.7;
+    transform: translateX(-3px);
+}
+
+.loader {
+    text-align: center;
+    margin-top: 20%;
+}
+
+.dashboardPage {
+    padding: 6rem 2rem 2rem;
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.pageHeader {
+    margin-bottom: 2rem;
+    border-bottom: 2px solid rgba(20, 85, 81, 0.1);
+    padding-bottom: 1rem;
+}
+
+.pageTitle {
+    color: #145551;
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+.pageDescription {
+    color: #64748b;
+    margin-top: 0.5rem;
+}
+
+.kpiGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.kpiCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.iconBlue {
+    background: #e0f2fe;
+    padding: 1rem;
+    border-radius: 50%;
+    color: #0284c7;
+    display: flex;
+}
+
+.iconGreen {
+    background: #dcfce7;
+    padding: 1rem;
+    border-radius: 50%;
+    color: #16a34a;
+    display: flex;
+}
+
+.iconOrange {
+    background: #ffedd5;
+    padding: 1rem;
+    border-radius: 50%;
+    color: #ea580c;
+    display: flex;
+}
+
+.kpiLabel {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.kpiValue {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #0f172a;
+}
+
+.chartsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 2rem;
+}
+
+.chartCard {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.chartTitle {
+    color: #145551;
+    margin-bottom: 1.5rem;
+    margin-top: 0;
+}
+
+.emptyMessage {
+    text-align: center;
+    color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+    .topHeader {
+        padding: 1rem;
+    }
+
+    .dashboardPage {
+        padding: 6rem 1rem 1rem;
+    }
+
+    .chartsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+:global(.recharts-tooltip-wrapper) {
+    outline: none !important;
+}
+
+:global(.recharts-default-tooltip) {
+    border-radius: 8px !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    padding: 10px 15px !important;
+}
